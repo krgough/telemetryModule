@@ -31,6 +31,7 @@ Write values to sql_server on aws server
 
 """
 import os,sys,time
+import mySQL_Library as sql
 
 nullTemperature = 999
 w1_devices = '/sys/bus/w1/devices'
@@ -40,6 +41,10 @@ sensorLookup = {'28-0415a189ccff':'sensor1',
                 '':'sensor3',
                 '':'sensor4',
                 '':'sensor5'}
+
+database = 'hotwater'
+table = 'temperature'
+sqlCreds = sql.sqlCredentials('kg_aws_keith',database,table)
 
 def getDeviceIds():
     """
@@ -51,7 +56,6 @@ def getDeviceIds():
             ids.append(d)
 
     return ids
-
 def getTemperatureReading(devId):
     """
     """
@@ -70,7 +74,7 @@ def getTemperatureReading(devId):
         readOk = True if (myText.find('YES')>0) else False
         
         if readOk:
-            myTemperature = float(myText.split("\n")[1].split("=")[1])/1000
+            myTemperature = int(myText.split("\n")[1].split("=")[1])
             statusCode = 'ReadingOK'
         else:
             myTemperature=nullTemperature
@@ -82,6 +86,13 @@ def getTemperatureReading(devId):
         myTemperature=999
         
     return myTemperature,statusCode
+def postResults(results):
+    """ Insert the results into the mySQL database on the server
+    
+    """
+    resp = sql.insertNewEntry(sqlCreds, table, results)
+    print(resp)
+    return
 
 if __name__ == "__main__":
     debug = False
@@ -103,8 +114,10 @@ if __name__ == "__main__":
             temp,status = getTemperatureReading(d)
             sensorName = sensorLookup[d]
     
-        results.append({d:{'temperature':temp,'statusCode':status,'sensorName':sensorName,'timestamp':ts}})
+        results.append({'sensorId':d,'temperature':temp,'statusCode':status,'sensorName':sensorName,'timestamp':ts})
     
     for r in results:
         print(r)
+    
+    postResults(results)
     #print("{},{:10.2f}'C,{}".format(d,temp,status))
