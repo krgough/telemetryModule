@@ -86,10 +86,8 @@ def getTemperatureReading(devId):
 if __name__ == "__main__":
     debug = False
     
-#     devIds = getDeviceIds()
-#     if debug: print(devIds)
-    
-    devIds = ['28-0415a18d89ff','28-0415a189ccff','232323']
+    devIds = getDeviceIds()
+    if debug: print(devIds)
     
     results=[]
     ts = time.strftime("%Y-%m-%d %H:%M:%S")    
