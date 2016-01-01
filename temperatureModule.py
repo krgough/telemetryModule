@@ -116,7 +116,7 @@ if __name__ == "__main__":
             temp,status = getTemperatureReading(d)
             sensorName = sensorLookup[d]
     
-        results.append({'user':user,'sensorId':d,'temperature':temp,'statusCode':status,'sensorName':sensorName,'timestamp':ts})
+        results.append({'username':user,'sensorId':d,'temperature':temp,'statusCode':status,'sensorName':sensorName,'timestamp':ts})
     
     for r in results:
         print(r)
