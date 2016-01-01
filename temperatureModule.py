@@ -90,8 +90,9 @@ def postResults(results):
     """ Insert the results into the mySQL database on the server
     
     """
-    resp = sql.insertNewEntry(sqlCreds, table, results)
-    print(resp)
+    for r in results:
+        resp = sql.insertNewEntry(sqlCreds, table, r)
+        print(resp)
     return
 
 if __name__ == "__main__":
