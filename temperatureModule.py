@@ -42,6 +42,7 @@ sensorLookup = {'28-0415a189ccff':'sensor1',
                 '':'sensor4',
                 '':'sensor5'}
 
+user = 'keith.gough'
 database = 'hotwater'
 table = 'temperature'
 sqlCreds = sql.sqlCredentials('kg_aws_keith',database,table)
@@ -115,7 +116,7 @@ if __name__ == "__main__":
             temp,status = getTemperatureReading(d)
             sensorName = sensorLookup[d]
     
-        results.append({'sensorId':d,'temperature':temp,'statusCode':status,'sensorName':sensorName,'timestamp':ts})
+        results.append({'user':user,'sensorId':d,'temperature':temp,'statusCode':status,'sensorName':sensorName,'timestamp':ts})
     
     for r in results:
         print(r)
