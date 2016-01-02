@@ -38,9 +38,9 @@ w1_devices = '/sys/bus/w1/devices'
 
 sensorLookup = {'28-0415a189ccff':'sensor1',
                 '28-0415a18d89ff':'sensor2',
-                '':'sensor3',
-                '':'sensor4',
-                '':'sensor5'}
+                '28-0415a18b44ff':'sensor3',
+                '28-0415a18c61ff':'sensor4',
+                '28-0415a18adeff':'sensor5'}
 
 user = 'keith.gough'
 database = 'hotwater'
