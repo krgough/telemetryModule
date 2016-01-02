@@ -38,8 +38,8 @@ w1_devices = '/sys/bus/w1/devices'
 
 sensorLookup = {'28-0415a18d89ff':'sensor1',
                 '28-0415a18adeff':'sensor2',
-                '28-0415a18b44ff':'sensor3',
-                '28-0415a18c61ff':'sensor4',
+                '28-0415a18c61ff':'sensor3',
+                '28-0415a18b44ff':'sensor4',
                 '28-0415a189ccff':'sensor5'}
 
 user = 'keith.gough'
