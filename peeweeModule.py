@@ -14,15 +14,15 @@ database = 'hotwater'
 sqlCredentialFile = fp.sqlCredentialFile
 sqlCreds = fp.sqlCredentials(sqlCredId)
 
-db = pw.MySQLDatabase(database,user=sqlCreds.username,host=sqlCreds.host,password=sqlCreds.password)
+db_Hotwater = pw.MySQLDatabase(database,user=sqlCreds.username,host=sqlCreds.host,password=sqlCreds.password)
 
-class mySQLModel(pw.Model):
+class hotwater(pw.Model):
     """ A base model for mySQL database """
     class Meta:
-        database = db
+        database = db_Hotwater
 
 # Model for hotwater.temperature table      
-class temperature(mySQLModel):
+class temperature(hotwater):
     """ This class describes the columns in the 'temperature' table in the database
     """
     id = pw.IntegerField(primary_key=True)
@@ -96,8 +96,8 @@ if __name__ == "__main__":
     """ Tests """
         
     # Insert dummy data
-    test_InsertJunkRow(db,temperature)
-    test_getRows(db)
+    test_InsertJunkRow(db_Hotwater,temperature)
+    test_getRows(db_Hotwater)
 
 #     user = temperature.select().where((temperature.sensorName=='sensor1') | (temperature.sensorName=='sensor2'))
 #  

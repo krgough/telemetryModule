@@ -28,8 +28,9 @@ Write values to sql_server on aws server
 
 '''
 import time
-import mySQL_Library as sql
+#import mySQL_Library as sql
 import sensor_DS18B20 as DS18B20
+import peeweeModule as pw
 
 nullTemperature = 999
 w1_devices = '/sys/bus/w1/devices'
@@ -43,14 +44,15 @@ sensorLookup = {'28-0415a18d89ff':'sensor1',
 user = 'keith.gough'
 database = 'hotwater'
 table = 'temperature'
-sqlCreds = sql.sqlCredentials('kg_aws_keith',database,table)
+#sqlCreds = sql.sqlCredentials('kg_aws_keith',database,table)
 
 def postResults(results):
     """ Insert the results into the mySQL database on the server
     
     """
-    for r in results:
-        sql.insertNewEntry(sqlCreds, table, r)
+    #for r in results:
+    #    sql.insertNewEntry(sqlCreds, table, r)
+    pw.insertRows(pw.db_Hotwater, pw.temperature, results)
     return
 def main():
     """ Read the sensors and then post results to SQL server
