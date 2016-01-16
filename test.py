@@ -5,6 +5,16 @@ Created on 31 Dec 2015
 '''
 import time
 
-results = [time.strftime("%d/%m/%Y %H:%M:%S")]
+def myError(returnError):
+    """
+    """
+    if not returnError:
+        return 0
+    else:
+        return "error string"
+    
+    
+resp = myError(returnError=True)
 
-print(results)
+if resp:
+    print('ERROR {}'.format(resp))
