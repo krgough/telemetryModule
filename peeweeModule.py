@@ -28,7 +28,7 @@ class temperature(hotwater):
     id = pw.IntegerField(primary_key=True)
     username = pw.CharField()
     sensorName = pw.CharField()
-    sensorID = pw.CharField()
+    sensorId = pw.CharField()
     temperature = pw.IntegerField()
     statusCode = pw.CharField()
     timestamp = pw.DateTimeField()
@@ -39,11 +39,11 @@ def insertRows(db,table,data):
     """
     errorState = False
     resp = None
-    try:
-        with db.atomic():
-            table.insert_many(data).execute()
-    except Exception as e:
-        resp="ERROR: {}".format(e)
+    #try:
+    with db.atomic():
+        table.insert_many(data).execute()
+    #except Exception as e:
+    #    resp="ERROR: {}".format(e)
     return resp,errorState 
 def selectWhere(db,table,*expressions):
     """
@@ -73,7 +73,7 @@ def test_InsertJunkRow(db,table):
     """
     data = [{'username':'junk1',
              'sensorName':'junkSensor',
-             'sensorID':'ABC_JUNK',
+             'sensorId':'ABC_JUNK',
              'temperature':12345,
              'statusCode':'This_is_junk',
              'timestamp':time.strftime("%Y-%m-%d %H:%M:%S")}]
@@ -98,10 +98,5 @@ if __name__ == "__main__":
     # Insert dummy data
     test_InsertJunkRow(db_Hotwater,temperature)
     test_getRows(db_Hotwater)
-
-#     user = temperature.select().where((temperature.sensorName=='sensor1') | (temperature.sensorName=='sensor2'))
-#  
-#     for u in user:
-#         print(u.sensorName,u.temperature,u.timestamp)
 
     print('All Done')

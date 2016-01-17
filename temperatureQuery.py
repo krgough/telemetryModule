@@ -19,7 +19,7 @@ def getData():
     """
     pw.sqlCredId = 'kg_aws_keith'
     pw.database = 'hotwater'
-    resp,errStatus = pw.selectWhere(pw.db,pw.temperature,(pw.temperature.timestamp > "2016-01-12 20:15" ))
+    resp,errStatus = pw.selectWhere(pw.db_Hotwater,pw.temperature,(pw.temperature.timestamp > "2016-01-16 00:00" ))
 
     if errStatus:
         print(errStatus)
