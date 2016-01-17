@@ -216,7 +216,7 @@ class tsl2561(object):
         if ir==0: return 0
         
         ratio = ir/full
-        print(ratio)
+        #print(ratio)
         
         if ratio<= 0.5:
             lux = (LUX_A1*full)-(LUX_A1*full*ratio**1.4)
@@ -238,13 +238,13 @@ if __name__ == "__main__":
     print("DeviceID: {}".format(hex(tsl.id)))
 
     full,ir = tsl.getFullLuminosity()
-    print("\n 16x Gain and Full 402ms Integration time (max resolution)")
+    print("\nGain=16x. Full 402ms Integration time (max resolution)")
     print("READINGS: Full={}, IR={}".format(full,ir))
     print("LUX = {}".format(tsl.lux(full,ir,tsl._gain,tsl._integrationTime)))
     
     tsl.gain = TSL2561_TIMING_GAIN_1X
     full,ir = tsl.getFullLuminosity()
-    print("\n 1x Gain and full 402ms Integration Time (max resolution)")
+    print("\nGain=1x.  Full 402ms Integration Time (max resolution)")
     print("READINGS: Full={}, IR={}.".format(full,ir))
     print("LUX = {}".format(tsl.lux(full,ir,tsl._gain,tsl._integrationTime)))
     
