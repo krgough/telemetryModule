@@ -162,9 +162,9 @@ class tsl2561(object):
         
         if self._integrationTime == TSL2561_TIMING_13MS:
             threshold = TSL2561_13MS_FULL_SCALE * 0.96
-        elif self.integrationTime == TSL2561_TIMING_101MS:
+        elif self._integrationTime == TSL2561_TIMING_101MS:
             threshold = TSL2561_101MS_FULL_SCALE * 0.96
-        elif self.integrationTime == TSL2561_TIMING_402MS:
+        elif self._integrationTime == TSL2561_TIMING_402MS:
             threshold = TSL2561_402MS_FULL_SCALE*0.96
         
         # If reading greater than threshold then reduce gain
