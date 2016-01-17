@@ -173,7 +173,7 @@ class tsl2561(object):
         """
         
         # Set max gain and get a reading
-        self.setGainAndIntegration(TSL2561_TIMING_GAIN_16X,self._integrationTime)
+        self.gain = TSL2561_TIMING_GAIN_16X
         full,ir = self.getFullLuminosity()
         
         if self._integrationTime == TSL2561_TIMING_13MS:
@@ -185,7 +185,7 @@ class tsl2561(object):
         
         # If reading greater than threshold then reduce gain
         if full>threshold:
-            self.setGainAndIntegration(TSL2561_TIMING_GAIN_1X,self._integrationTime)
+            self.gain = TSL2561_TIMING_GAIN_1X
             full,ir = self.getFullLuminosity()
         
         return full,ir
