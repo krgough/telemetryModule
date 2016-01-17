@@ -89,8 +89,9 @@ class tsl2561(object):
             print("ERROR: Device ID should be 0x50.")
             return
 
-        self.gain = gain
-        self.integrationTime = integration
+        self._gain = gain
+        self._integrationTime = integration
+        self.setGainAndIntegration()
         self.disable()
 
     @ property
