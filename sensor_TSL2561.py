@@ -228,7 +228,9 @@ class tsl2561(object):
             lux = (LUX_A4*full)-(LUX_B4*ir)
         elif ratio>1.3:
             lux = 0
-            
+         
+        lux = round(lux)
+           
         return lux
         
 if __name__ == "__main__":
