@@ -230,10 +230,15 @@ if __name__ == "__main__":
     print("READINGS: Full={}, IR={}. Gain=1x, integration=402ms".format(full,ir))
     print("LUX = {}".format(tsl.lux(full,ir,tsl._gain,tsl._integrationTime)))
     
-    
     # Now use auto gain
     full,ir = tsl.getLuminosityAutoGain()
+    
+    if tsl._gain==TSL2561_TIMING_GAIN_1X:
+        gain='1x'
+    else:
+        gain='16x'
+    
     print("\nNow with automatic gain control")
-    print("READINGS: Full={}, IR={}. Gain=1x, integration=402ms".format(full,ir))
+    print("READINGS: Full={}, IR={}. Gain={}, integration=402ms".format(full,ir,gain))
     print("LUX = {}".format(tsl.lux(full,ir,tsl._gain,tsl._integrationTime)))
     print('All Done')
