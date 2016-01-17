@@ -89,8 +89,25 @@ class tsl2561(object):
             print("ERROR: Device ID should be 0x50.")
             return
 
-        self.setGainAndIntegration(gain,integration)
+        self.gain = gain
+        self.integrationTime = integration
         self.disable()
+
+    @ property
+    def gain(self):
+        return self._gain
+    @ property
+    def integrationTime(self):
+        return self._integrationTime
+    
+    @ gain.setter
+    def gain(self,gainValue):
+        self._gain=gainValue
+        self.setGainAndIntegration()
+    @ integrationTime.setter
+    def integrationTime(self,integrationTimeValue):
+        self._integrationTime=integrationTimeValue
+        self.setGainAndIntegration()
 
     def getRegister(self,reg):
         val = self.bus.read_byte_data(
@@ -113,12 +130,10 @@ class tsl2561(object):
             TSL2561_CMD_BIT | TSL2561_REG_CONTROL,
             TSL2561_CTRL_POWER_OFF)
         return
-    def setGainAndIntegration(self,gain,integrationTime):
+    def setGainAndIntegration(self):
+        """ Sets the timing register to the gain and integrationTime settings
+        
         """
-        """
-        self._gain=gain
-        self._integrationTime=integrationTime
-
         self.bus.write_byte_data(
             self.sensorAddress,
             TSL2561_CMD_BIT | TSL2561_REG_TIMING,
@@ -220,14 +235,14 @@ if __name__ == "__main__":
     print("DeviceID: {}".format(hex(tsl.id)))
 
     full,ir = tsl.getFullLuminosity()
-    print()
-    print("READINGS: Full={}, IR={}. Gain=16x integration=402ms".format(full,ir))
+    print("\n 16x Gain and Full 402ms Integration time (max resolution)")
+    print("READINGS: Full={}, IR={}".format(full,ir))
     print("LUX = {}".format(tsl.lux(full,ir,tsl._gain,tsl._integrationTime)))
     
-    tsl.setGainAndIntegration(TSL2561_TIMING_GAIN_1X,TSL2561_TIMING_402MS)
+    tsl.gain = TSL2561_TIMING_GAIN_1X
     full,ir = tsl.getFullLuminosity()
-    print()
-    print("READINGS: Full={}, IR={}. Gain=1x, integration=402ms".format(full,ir))
+    print("\n 1x Gain and full 402ms Integration Time (max resolution)")
+    print("READINGS: Full={}, IR={}.".format(full,ir))
     print("LUX = {}".format(tsl.lux(full,ir,tsl._gain,tsl._integrationTime)))
     
     # Now use auto gain
@@ -238,7 +253,7 @@ if __name__ == "__main__":
     else:
         gain='16x'
     
-    print("\nNow with automatic gain control")
-    print("READINGS: Full={}, IR={}. Gain={}, integration=402ms".format(full,ir,gain))
+    print("\nAGC {} Gain selected.  402ms Integration Time (max resolution)".format(gain))
+    print("READINGS: Full={}, IR={}.".format(full,ir))
     print("LUX = {}".format(tsl.lux(full,ir,tsl._gain,tsl._integrationTime)))
     print('All Done')
