@@ -37,25 +37,29 @@ def postResults(results):
 def main():
     """ Read the sensors and then post results to SQL server
     
-    """
-    debug = False
-    
+    """    
     # Create a sensor object
     tsl = TSL5661.tsl2561()
     
-    if debug: print(devIds)
+    # Get the readings
+    full,ir = tsl.getLuminosityAutoGain()
+    lux = tsl.lux(full, ir, tsl.gain, tsl.integrationTime)
     
-    results=[]
     ts = time.strftime("%Y-%m-%d %H:%M:%S")    
 
+    results=({'username':user,
+              'full':full,
+              'ir':ir,
+              'lux':lux,
+              'gain':tsl.gain,
+              'integrationTime':tsl.integrationTime,
+              'timestamp':ts})
     
-    results.append({'username':user,'sensorId':d,'temperature':temp,'statusCode':status,'sensorName':sensorName,'timestamp':ts})
+    print(results)
     
     # Post to the AWS SQL server
-    postResults(results)
-    
-    for r in results:
-        print(r)
+    # postResults(results)
+
 
 if __name__ == "__main__":
     main()
