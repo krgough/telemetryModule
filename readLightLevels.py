@@ -19,22 +19,12 @@ Write values to sql_server on aws server
 '''
 import time
 #import mySQL_Library as sql
-import sensor_DS18B20 as DS18B20
+import sensor_TSL2561 as TSL5661
 import peeweeModule as pw
 
-nullTemperature = 999
-w1_devices = '/sys/bus/w1/devices'
-
-sensorLookup = {'28-0415a18d89ff':'sensor1',
-                '28-0000076393f1':'sensor2',
-                '28-0415a18c61ff':'sensor3',
-                '28-0415a18b44ff':'sensor4',
-                '28-0415a189ccff':'sensor5'}
-
 user = 'keith.gough'
-database = 'hotwater'
-table = 'temperature'
-#sqlCreds = sql.sqlCredentials('kg_aws_keith',database,table)
+database = 'lightMeasurements'
+table = 'light'
 
 def postResults(results):
     """ Insert the results into the mySQL database on the server
@@ -50,25 +40,16 @@ def main():
     """
     debug = False
     
-    # Confirm what devices are attached
-    devIds = DS18B20.getDeviceIds()
+    # Create a sensor object
+    tsl = TSL5661.tsl2561()
+    
     if debug: print(devIds)
     
     results=[]
     ts = time.strftime("%Y-%m-%d %H:%M:%S")    
-    for d in devIds:
-        
-        # Lookup the sensor name using the id
-        # If we don't find it then put a dummy entry into the dB with a suitable error
-        if not d in sensorLookup:
-            temp=nullTemperature
-            status='Sensor {} is not in the lookup table'.format(d)
-            sensorName='Sensor not named'
-        else:
-            temp,status = DS18B20.getTemperatureReading(d)
-            sensorName = sensorLookup[d]
+
     
-        results.append({'username':user,'sensorId':d,'temperature':temp,'statusCode':status,'sensorName':sensorName,'timestamp':ts})
+    results.append({'username':user,'sensorId':d,'temperature':temp,'statusCode':status,'sensorName':sensorName,'timestamp':ts})
     
     # Post to the AWS SQL server
     postResults(results)

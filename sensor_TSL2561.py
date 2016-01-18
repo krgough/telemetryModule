@@ -78,11 +78,12 @@ class tsl2561(object):
     def __init__(self,
                  busAddress = busAddress,
                  sensorAddress = address,
-                 integration = TSL2561_INT_VALS['402ms'],
-                 gain = TSL2561_GAIN_VALS['16x']):
+                 integration = '402ms',
+                 gain = '16x'):
 
         self.bus = smbus.SMBus(busAddress)
         self.sensorAddress = address
+        self.sensorError = None
         
         # Check device is present by reading the ID register
         val = self.getRegister(TSL2561_REG_ID)
