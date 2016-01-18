@@ -16,11 +16,6 @@ device_reg  = 0x12 #
 address = 0x39
 busAddress = 1 # Change to 0 for older RPi revision
 
-# Channels
-TSL2561_FULLSPECTRUM = 0x00   # Channel 0
-TSL2561_INFRARED     = 0x01   # Channel 1
-TSL2561_VISIBLE      = 0x02   # Channel 0 - Channel 1
-
 # Register Addresses
 TSL2561_REG_CONTROL          = 0x00
 TSL2561_REG_TIMING           = 0x01
@@ -46,11 +41,15 @@ TSL2561_CTRL_POWER_ON  = 0x03
 TSL2561_CTRL_POWER_OFF = 0x00
 
 # TIMING Regsister Bits
-TSL2561_TIMING_GAIN_1X  = 0x00 
-TSL2561_TIMING_GAIN_16X = 0x10
-TSL2561_TIMING_13MS  = 0x00  # 13.7ms
-TSL2561_TIMING_101MS = 0x01  # 101ms
-TSL2561_TIMING_402MS = 0x02  # 402ms
+TSL2561_GAIN_VALS = {'1x':0x00,'16x':0x10}
+#TSL2561_TIMING_GAIN_1X  = 0x00 
+#TSL2561_TIMING_GAIN_16X = 0x10
+
+# Integration time values: 13ms,101ms,402ms
+TSL2561_INT_VALS = {'13ms':0x00,'101ms':0x01,'402ms':0x02}
+#TSL2561_TIMING_13MS  = 0x00  # 13.7ms
+#TSL2561_TIMING_101MS = 0x01  # 101ms
+#TSL2561_TIMING_402MS = 0x02  # 402ms
 
 # Scaling parameter for integration time
 TSL2561_13MS_SCALE = 322/11   # See device datasheet p.5
@@ -72,12 +71,15 @@ LUX_B3 = 0.0153
 LUX_A4 = 0.00146
 LUX_B4 = 0.00112
 
+#TODO: Change inttime and gain to use dict
+#TODO: Put lookup in setters to check for valid values
+
 class tsl2561(object):
     def __init__(self,
                  busAddress = busAddress,
                  sensorAddress = address,
-                 integration = TSL2561_TIMING_402MS,
-                 gain = TSL2561_TIMING_GAIN_16X):
+                 integration = TSL2561_INT_VALS['402ms'],
+                 gain = TSL2561_GAIN_VALS['16x']):
 
         self.bus = smbus.SMBus(busAddress)
         self.sensorAddress = address
@@ -103,10 +105,20 @@ class tsl2561(object):
     
     @ gain.setter
     def gain(self,gainValue):
+        # Check we are trying to set a valid value
+        if not gainValue in list(TSL2561_GAIN_VALS.keys()):
+            print("ERROR: Invalide gain value. {} is not in {}".format(gainValue,list(TSL2561_GAIN_VALS.keys())))
+            return
+        # If ok the set the value
         self._gain=gainValue
         self.setGainAndIntegration()
     @ integrationTime.setter
     def integrationTime(self,integrationTimeValue):
+        # Check we are trying to set a valid value
+        if not integrationTimeValue in list(TSL2561_INT_VALS.keys()):
+            print("ERROR: Invalid integration time value. {} is not in {}.".format(integrationTimeValue,
+                                                                                   list(TSL2561_INT_VALS.keys())))
+        # If ok then set the value
         self._integrationTime=integrationTimeValue
         self.setGainAndIntegration()
 
@@ -135,10 +147,13 @@ class tsl2561(object):
         """ Sets the timing register to the gain and integrationTime settings
         
         """
+        gainVal = TSL2561_GAIN_VALS[self._gain]
+        intVal = TSL2561_INT_VALS[self._integrationTime]
+        
         self.bus.write_byte_data(
             self.sensorAddress,
             TSL2561_CMD_BIT | TSL2561_REG_TIMING,
-            self._gain | self._integrationTime)
+            gainVal | intVal)
         return
     def getFullLuminosity(self):
         """
@@ -147,11 +162,11 @@ class tsl2561(object):
         self.enable()
         
         # Wait for integration to complete
-        if self._integrationTime==TSL2561_TIMING_13MS:
+        if self._integrationTime=='13ms':
             time.sleep(0.050)
-        elif self._integrationTime==TSL2561_TIMING_101MS:
+        elif self._integrationTime=='101ms':
             time.sleep(0.150)
-        elif self._integrationTime==TSL2561_TIMING_402MS:
+        elif self._integrationTime=='402ms':
             time.sleep(0.450)
         
         full = self.bus.read_word_data(
@@ -173,19 +188,19 @@ class tsl2561(object):
         """
         
         # Set max gain and get a reading
-        self.gain = TSL2561_TIMING_GAIN_16X
+        self.gain = '16x'
         full,ir = self.getFullLuminosity()
         
-        if self._integrationTime == TSL2561_TIMING_13MS:
+        if self._integrationTime == '13ms':
             threshold = TSL2561_13MS_FULL_SCALE * 0.96
-        elif self._integrationTime == TSL2561_TIMING_101MS:
+        elif self._integrationTime == '101ms':
             threshold = TSL2561_101MS_FULL_SCALE * 0.96
-        elif self._integrationTime == TSL2561_TIMING_402MS:
-            threshold = TSL2561_402MS_FULL_SCALE*0.96
+        elif self._integrationTime == '402ms':
+            threshold = TSL2561_402MS_FULL_SCALE * 0.96
         
         # If reading greater than threshold then reduce gain
         if full>threshold:
-            self.gain = TSL2561_TIMING_GAIN_1X
+            self.gain = '1x'
             full,ir = self.getFullLuminosity()
         
         return full,ir
@@ -198,16 +213,16 @@ class tsl2561(object):
             Calculate lux
         
         """
-        if integrationTime == TSL2561_TIMING_13MS:
+        if integrationTime == '13ms':
             intScale = TSL2561_13MS_SCALE
-        if integrationTime == TSL2561_TIMING_101MS:
+        if integrationTime == '101ms':
             intScale = TSL2561_101MS_SCALE
-        if integrationTime == TSL2561_TIMING_402MS:
+        if integrationTime == '402ms':
             intScale = TSL2561_402MS_SCALE
             
-        if gain == TSL2561_TIMING_GAIN_1X:
+        if gain == '1x':
             gainScale = 16
-        if gain == TSL2561_TIMING_GAIN_16X:
+        if gain == '16x':
             gainScale = 1
             
         full = full * intScale * gainScale
@@ -242,21 +257,15 @@ if __name__ == "__main__":
     print("READINGS: Full={}, IR={}".format(full,ir))
     print("LUX = {}".format(tsl.lux(full,ir,tsl._gain,tsl._integrationTime)))
     
-    tsl.gain = TSL2561_TIMING_GAIN_1X
+    tsl.gain = '1x'
     full,ir = tsl.getFullLuminosity()
     print("\nGain=1x.  Full 402ms Integration Time (max resolution)")
     print("READINGS: Full={}, IR={}.".format(full,ir))
     print("LUX = {}".format(tsl.lux(full,ir,tsl._gain,tsl._integrationTime)))
     
     # Now use auto gain
-    full,ir = tsl.getLuminosityAutoGain()
-    
-    if tsl._gain==TSL2561_TIMING_GAIN_1X:
-        gain='1x'
-    else:
-        gain='16x'
-    
-    print("\nAGC {} Gain selected.  402ms Integration Time (max resolution)".format(gain))
+    full,ir = tsl.getLuminosityAutoGain()    
+    print("\nAGC {} Gain selected.  402ms Integration Time (max resolution)".format(tsl.gain))
     print("READINGS: Full={}, IR={}.".format(full,ir))
     print("LUX = {}".format(tsl.lux(full,ir,tsl._gain,tsl._integrationTime)))
     print('All Done')
