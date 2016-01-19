@@ -5,26 +5,25 @@ Created on 18 Jan 2016
 
 Light Levels - Read light level sensor and post results to AWS SQL server.
 
-sql Table name: light_TSL2561
+sql database: illumination
+sql Table name: lightlevels
 
 sql Table Column names:
-full,ir,lux,gain,integration,timestamp
-
-{sensorID:id, sensorName:name, temperature:temp, timeStamp:time}
+location,     full , ir   , lux  , gain        , integrationTime, timestamp
+charvar(255), int(), int(), int(), charvar(255), charvar(255)   , datetime()
 
 Cron job will run script every 2mins
-Read all sensors
+Read sensor
 Write values to sql_server on aws server
 
 '''
 import time
-#import mySQL_Library as sql
 import sensor_TSL2561 as TSL5661
 import peeweeModule as pw
 
-user = 'keith.gough'
-database = 'lightMeasurements'
-table = 'light'
+location = 'upstairsOffice'
+database = 'illumination'
+table = 'lightLevels'
 
 def postResults(results):
     """ Insert the results into the mySQL database on the server
@@ -47,7 +46,7 @@ def main():
     
     ts = time.strftime("%Y-%m-%d %H:%M:%S")    
 
-    results=({'username':user,
+    results=({'location':location,
               'full':full,
               'ir':ir,
               'lux':lux,
@@ -58,8 +57,7 @@ def main():
     print(results)
     
     # Post to the AWS SQL server
-    # postResults(results)
-
+    postResults(results)
 
 if __name__ == "__main__":
     main()
