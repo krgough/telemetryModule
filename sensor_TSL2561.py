@@ -205,7 +205,7 @@ class tsl2561(object):
             full,ir = self.getRawLuminosity()
         
         return full,ir
-    def scaleRawReadings(full,ir,gain,integrationTime):
+    def scaleRawReadings(self,full,ir,gain,integrationTime):
         """ Normalise the raw reading by scaling for gain and integrationTime
         
         """
@@ -268,7 +268,7 @@ class tsl2561(object):
         return lux
     
     ''' Use these methods to get the Luminosity readings and/or Lux value'''
-    def getScaledLuminosity(autoGain=True):
+    def getScaledLuminosity(self,autoGain=True):
         """ Get luminosity values scaled for gain and integration time.
         
         """
@@ -279,7 +279,7 @@ class tsl2561(object):
         
         fullScaled,irScaled = scaleRawReadings(full,ir,self.gain,self.integrationTime)
         return fullScaled,irScaled
-    def getLux(autoGain=True):
+    def getLux(self,autoGain=True):
         """ Get lux value
         
         """
