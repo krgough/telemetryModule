@@ -156,7 +156,7 @@ class tsl2561(object):
             TSL2561_CMD_BIT | TSL2561_REG_TIMING,
             gainVal | intVal)
         return
-    def getFullLuminosity(self):
+    def getRawLuminosity(self):
         """
         """
         #Turn on sensor
@@ -180,7 +180,7 @@ class tsl2561(object):
         # Turn off sensor
         self.disable()
         return full,ir
-    def getLuminosityAutoGain(self):
+    def getRawLuminosityAutoGain(self):
         """ Automatically adjusts gain to prevent saturation
             
             Start with full gain then select full gain if reading is over the threshold
@@ -190,7 +190,7 @@ class tsl2561(object):
         
         # Set max gain and get a reading
         self.gain = '16x'
-        full,ir = self.getFullLuminosity()
+        full,ir = self.getRawLuminosity()
         
         if self._integrationTime == '13ms':
             threshold = TSL2561_13MS_FULL_SCALE * 0.96
@@ -202,16 +202,11 @@ class tsl2561(object):
         # If reading greater than threshold then reduce gain
         if full>threshold:
             self.gain = '1x'
-            full,ir = self.getFullLuminosity()
+            full,ir = self.getRawLuminosity()
         
         return full,ir
-    
-    def lux(self,full,ir,gain,integrationTime):
-        """ Calculate lux
-        
-            Scale for integration value
-            Scale for gain
-            Calculate lux
+    def scaleRawReadings(full,ir,gain,integrationTime):
+        """ Normalise the raw reading by scaling for gain and integrationTime
         
         """
         if integrationTime == '13ms':
@@ -226,47 +221,110 @@ class tsl2561(object):
         if gain == '16x':
             gainScale = 1
             
-        full = full * intScale * gainScale
-        ir = ir * intScale * gainScale
-
-        if ir==0: return 0
+        fullScaled = full * intScale * gainScale
+        irScaled = ir * intScale * gainScale
         
-        ratio = ir/full
+        return fullScaled,irScaled
+    def luxCalculation(self,full,ir,gain,integrationTime):
+        """ Calculate lux
+        
+            Scale for integration time and gain
+            Calculate lux
+        
+            use -1 as saturated value
+            
+        """
+        # Catch divide by zero
+        if irScaled==0: return 0
+        
+        # Catch saturation
+        if integrationTime == '13m's and full>=TSL2561_13MS_FULL_SCALE:
+            return -1
+        elif integrationTime == '101ms' and full>=TSL2561_101MS_FULL_SCALE:
+            return -1
+        elif integrationTime == '402ms' and full>=TSL2561_402MS_FULL_SCALE:
+            return -1  
+        
+        # Scale the raw values
+        fullScaled,irScaled = scaleRawReadings(full,ir,gain,integrationTime)        
+        
+        # Calculate the lux ratio
+        ratio = irScaled/fullScaled
         #print(ratio)
         
+        # Calculate lux
         if ratio<= 0.5:
-            lux = (LUX_A1*full)-(LUX_A1*full*ratio**1.4)
+            lux = (LUX_A1*fullScaled)-(LUX_A1*fullScaled*ratio**1.4)
         elif ratio<=0.61:
-            lux = (LUX_A2*full)-(LUX_B2*ir)
+            lux = (LUX_A2*fullScaled)-(LUX_B2*irScaled)
         elif ratio<=0.8:
-            lux = (LUX_A3*full)-(LUX_B3*ir)
+            lux = (LUX_A3*fullScaled)-(LUX_B3*irScaled)
         elif ratio<=1.3:
-            lux = (LUX_A4*full)-(LUX_B4*ir)
+            lux = (LUX_A4*fullScaled)-(LUX_B4*irScaled)
         elif ratio>1.3:
             lux = 0
          
         lux = round(lux)
-           
+        return lux
+    
+    ''' Use these methods to get the Luminosity readings and/or Lux value'''
+    def getScaledLuminosity(autoGain=True):
+        """ Get luminosity values scaled for gain and integration time.
+        
+        """
+        if autoGain:
+            full,ir = getRawLuminosityAutoGain()
+        else:
+            full,ir = getRawLuminosity()
+        
+        fullScaled,irScaled = scaleRawReadings(full,ir,self.gain,self.integrationTime)
+        return fullScaled,irScaled
+    def getLux(autoGain=True):
+        """ Get lux value
+        
+        """
+        if autoGain:
+            full,ir = getRawLuminosityAutoGain()
+        else:
+            full,ir = getRawLuminosity()
+        
+        lux = luxCalculation(full,ir,self.gain,self.integrationTime)
         return lux
         
 if __name__ == "__main__":
     tsl = tsl2561()
     print("DeviceID: {}".format(hex(tsl.id)))
 
-    full,ir = tsl.getFullLuminosity()
+    full,ir = tsl.getRawLuminosity()
+    fullScaled,irScaled = scaleRawReadings(full,ir,self.gain,self.integrationTime)
+    lux = tsl.luxCalculation(full,ir,tsl._gain,tsl._integrationTime)
     print("\nGain=16x. Full 402ms Integration time (max resolution)")
-    print("READINGS: Full={}, IR={}".format(full,ir))
-    print("LUX = {}".format(tsl.lux(full,ir,tsl._gain,tsl._integrationTime)))
+    print("RAW READINGS:    Full={}, IR={}".format(full,ir))
+    print("SCALED READINGS: Full={}, IR={}".format(fullScaled,irScaled))
+    print("LUX = {}".format(lux))
     
     tsl.gain = '1x'
-    full,ir = tsl.getFullLuminosity()
+    full,ir = tsl.getRawLuminosity()
+    fullScaled,irScaled = scaleRawReadings(full,ir,self.gain,self.integrationTime)
+    lux = tsl.luxCalculation(full,ir,tsl._gain,tsl._integrationTime)    
     print("\nGain=1x.  Full 402ms Integration Time (max resolution)")
-    print("READINGS: Full={}, IR={}.".format(full,ir))
-    print("LUX = {}".format(tsl.lux(full,ir,tsl._gain,tsl._integrationTime)))
+    print("RAW READINGS:    Full={}, IR={}.".format(full,ir))
+    print("SCALED READINGS: Full={}, IR={}".format(fullScaled,irScaled))
+    print("LUX = {}".format(lux))
     
     # Now use auto gain
-    full,ir = tsl.getLuminosityAutoGain()    
+    full,ir = tsl.getLuminosityAutoGain()
+    fullScaled,irScaled = scaleRawReadings(full,ir,self.gain,self.integrationTime)
+    lux = tsl.luxCalculation(full,ir,tsl._gain,tsl._integrationTime)      
     print("\nAGC {} Gain selected.  402ms Integration Time (max resolution)".format(tsl.gain))
-    print("READINGS: Full={}, IR={}.".format(full,ir))
-    print("LUX = {}".format(tsl.lux(full,ir,tsl._gain,tsl._integrationTime)))
-    print('All Done')
+    print("RAW READINGS:    Full={}, IR={}.".format(full,ir))
+    print("SCALED READINGS: Full={}, IR={}".format(fullScaled,irScaled))
+    print("LUX = {}".format(lux))
+    
+    # Use the recommended methods
+    fullScaled,irScaled = getScaledLuminosity()
+    lux = getLux
+    print("\nSCALED READINGS: Full={}, IR={}".format(fullScaled,irScaled))
+    print("LUX = {}".format(lux))
+        
+    print('\nAll Done')
