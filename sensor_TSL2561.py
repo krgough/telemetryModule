@@ -246,7 +246,7 @@ class tsl2561(object):
             return -1  
         
         # Scale the raw values
-        fullScaled,irScaled = scaleRawReadings(full,ir,gain,integrationTime)        
+        fullScaled,irScaled = self.scaleRawReadings(full,ir,gain,integrationTime)        
         
         # Calculate the lux ratio
         ratio = irScaled/fullScaled
@@ -273,22 +273,22 @@ class tsl2561(object):
         
         """
         if autoGain:
-            full,ir = getRawLuminosityAutoGain()
+            full,ir = self.getRawLuminosityAutoGain()
         else:
-            full,ir = getRawLuminosity()
+            full,ir = self.getRawLuminosity()
         
-        fullScaled,irScaled = scaleRawReadings(full,ir,self.gain,self.integrationTime)
+        fullScaled,irScaled = self.scaleRawReadings(full,ir,self.gain,self.integrationTime)
         return fullScaled,irScaled
     def getLux(self,autoGain=True):
         """ Get lux value
         
         """
         if autoGain:
-            full,ir = getRawLuminosityAutoGain()
+            full,ir = self.getRawLuminosityAutoGain()
         else:
-            full,ir = getRawLuminosity()
+            full,ir = self.getRawLuminosity()
         
-        lux = luxCalculation(full,ir,self.gain,self.integrationTime)
+        lux = self.luxCalculation(full,ir,self.gain,self.integrationTime)
         return lux
         
 if __name__ == "__main__":
