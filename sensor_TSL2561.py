@@ -265,7 +265,7 @@ class tsl2561(object):
             lux = 0
          
         lux = round(lux)
-        return lux
+        return lux, fullScaled, irScaled
     
     ''' Use these methods to get the Luminosity readings and/or Lux value'''
     def getScaledLuminosity(self,autoGain=True):
@@ -288,16 +288,15 @@ class tsl2561(object):
         else:
             full,ir = self.getRawLuminosity()
         
-        lux = self.luxCalculation(full,ir,self.gain,self.integrationTime)
-        return lux
+        lux, fullScaled, irScaled = self.luxCalculation(full,ir,self.gain,self.integrationTime)
+        return lux, fullScaled, irScaled
         
 if __name__ == "__main__":
     tsl = tsl2561()
     print("DeviceID: {}".format(hex(tsl.id)))
 
     full,ir = tsl.getRawLuminosity()
-    fullScaled,irScaled = tsl.scaleRawReadings(full,ir,tsl.gain,tsl.integrationTime)
-    lux = tsl.luxCalculation(full,ir,tsl.gain,tsl.integrationTime)
+    lux, fullScaled, irScaled = tsl.luxCalculation(full,ir,tsl.gain,tsl.integrationTime)
     print("\nGain=16x. Full 402ms Integration time (max resolution)")
     print("RAW READINGS:    Full={}, IR={}".format(full,ir))
     print("SCALED READINGS: Full={}, IR={}".format(fullScaled,irScaled))
@@ -305,8 +304,7 @@ if __name__ == "__main__":
     
     tsl.gain = '1x'
     full,ir = tsl.getRawLuminosity()
-    fullScaled,irScaled = tsl.scaleRawReadings(full,ir,tsl.gain,tsl.integrationTime)
-    lux = tsl.luxCalculation(full,ir,tsl.gain,tsl.integrationTime)    
+    lux, fullScaled, irScaled = tsl.luxCalculation(full,ir,tsl.gain,tsl.integrationTime)    
     print("\nGain=1x.  Full 402ms Integration Time (max resolution)")
     print("RAW READINGS:    Full={}, IR={}.".format(full,ir))
     print("SCALED READINGS: Full={}, IR={}".format(fullScaled,irScaled))
@@ -314,16 +312,14 @@ if __name__ == "__main__":
     
     # Now use auto gain
     full,ir = tsl.getRawLuminosityAutoGain()
-    fullScaled,irScaled = tsl.scaleRawReadings(full,ir,tsl.gain,tsl.integrationTime)
-    lux = tsl.luxCalculation(full,ir,tsl.gain,tsl.integrationTime)      
+    lux, fullScaled, irScaled = tsl.luxCalculation(full,ir,tsl.gain,tsl.integrationTime)      
     print("\nAGC {} Gain selected.  402ms Integration Time (max resolution)".format(tsl.gain))
     print("RAW READINGS:    Full={}, IR={}.".format(full,ir))
     print("SCALED READINGS: Full={}, IR={}".format(fullScaled,irScaled))
     print("LUX = {}".format(lux))
     
     # Use the recommended methods
-    fullScaled,irScaled = tsl.getScaledLuminosity()
-    lux = tsl.getLux()
+    lux, fullScaled, irScaled = tsl.getLux()
     print("\nSCALED READINGS: Full={}, IR={}".format(fullScaled,irScaled))
     print("LUX = {}".format(lux))
         
