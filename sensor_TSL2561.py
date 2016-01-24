@@ -313,7 +313,7 @@ if __name__ == "__main__":
     print("LUX = {}".format(lux))
     
     # Now use auto gain
-    full,ir = tsl.getLuminosityAutoGain()
+    full,ir = tsl.getRawLuminosityAutoGain()
     fullScaled,irScaled = tsl.scaleRawReadings(full,ir,tsl.gain,tsl.integrationTime)
     lux = tsl.luxCalculation(full,ir,tsl.gain,tsl.integrationTime)      
     print("\nAGC {} Gain selected.  402ms Integration Time (max resolution)".format(tsl.gain))
