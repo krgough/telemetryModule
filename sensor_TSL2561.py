@@ -296,7 +296,7 @@ if __name__ == "__main__":
     print("DeviceID: {}".format(hex(tsl.id)))
 
     full,ir = tsl.getRawLuminosity()
-    fullScaled,irScaled = scaleRawReadings(full,ir,self.gain,self.integrationTime)
+    fullScaled,irScaled = tsl.scaleRawReadings(full,ir,self.gain,self.integrationTime)
     lux = tsl.luxCalculation(full,ir,tsl._gain,tsl._integrationTime)
     print("\nGain=16x. Full 402ms Integration time (max resolution)")
     print("RAW READINGS:    Full={}, IR={}".format(full,ir))
@@ -305,7 +305,7 @@ if __name__ == "__main__":
     
     tsl.gain = '1x'
     full,ir = tsl.getRawLuminosity()
-    fullScaled,irScaled = scaleRawReadings(full,ir,self.gain,self.integrationTime)
+    fullScaled,irScaled = tsl.scaleRawReadings(full,ir,self.gain,self.integrationTime)
     lux = tsl.luxCalculation(full,ir,tsl._gain,tsl._integrationTime)    
     print("\nGain=1x.  Full 402ms Integration Time (max resolution)")
     print("RAW READINGS:    Full={}, IR={}.".format(full,ir))
@@ -314,7 +314,7 @@ if __name__ == "__main__":
     
     # Now use auto gain
     full,ir = tsl.getLuminosityAutoGain()
-    fullScaled,irScaled = scaleRawReadings(full,ir,self.gain,self.integrationTime)
+    fullScaled,irScaled = tsl.scaleRawReadings(full,ir,self.gain,self.integrationTime)
     lux = tsl.luxCalculation(full,ir,tsl._gain,tsl._integrationTime)      
     print("\nAGC {} Gain selected.  402ms Integration Time (max resolution)".format(tsl.gain))
     print("RAW READINGS:    Full={}, IR={}.".format(full,ir))
@@ -322,8 +322,8 @@ if __name__ == "__main__":
     print("LUX = {}".format(lux))
     
     # Use the recommended methods
-    fullScaled,irScaled = getScaledLuminosity()
-    lux = getLux
+    fullScaled,irScaled = tsl.getScaledLuminosity()
+    lux = tsl.getLux
     print("\nSCALED READINGS: Full={}, IR={}".format(fullScaled,irScaled))
     print("LUX = {}".format(lux))
         
