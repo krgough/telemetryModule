@@ -234,20 +234,20 @@ class tsl2561(object):
             use -1 as saturated value
             
         """
-        # Catch divide by zero
-        if ir==0: return 0
+        # Scale the raw values
+        fullScaled,irScaled = self.scaleRawReadings(full,ir,gain,integrationTime) 
         
+        # Catch divide by zero
+        if ir==0: return 0,fullScaled,irScaled
+ 
         # Catch saturation
         if integrationTime == '13ms' and full>=TSL2561_13MS_FULL_SCALE:
-            return -1
+            return -1,fullScaled,irScaled
         elif integrationTime == '101ms' and full>=TSL2561_101MS_FULL_SCALE:
-            return -1
+            return -1,fullScaled,irScaled
         elif integrationTime == '402ms' and full>=TSL2561_402MS_FULL_SCALE:
-            return -1  
-        
-        # Scale the raw values
-        fullScaled,irScaled = self.scaleRawReadings(full,ir,gain,integrationTime)        
-        
+            return -1,fullScaled,irScaled  
+
         # Calculate the lux ratio
         ratio = irScaled/fullScaled
         #print(ratio)
