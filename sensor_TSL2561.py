@@ -238,7 +238,7 @@ class tsl2561(object):
         if irScaled==0: return 0
         
         # Catch saturation
-        if integrationTime == '13m's and full>=TSL2561_13MS_FULL_SCALE:
+        if integrationTime == '13ms' and full>=TSL2561_13MS_FULL_SCALE:
             return -1
         elif integrationTime == '101ms' and full>=TSL2561_101MS_FULL_SCALE:
             return -1
