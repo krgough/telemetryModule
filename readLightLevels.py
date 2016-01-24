@@ -41,11 +41,8 @@ def main():
     tsl = TSL5661.tsl2561()
     
     # Get the readings
-    full,ir = tsl.getLuminosityAutoGain()
-    lux = tsl.lux(full, ir, tsl.gain, tsl.integrationTime)
-    
+    lux, fullScaled, irScaled = tsl.lux(full, ir, tsl.gain, tsl.integrationTime)
     ts = time.strftime("%Y-%m-%d %H:%M:%S")    
-
     results=({'location':location,
               'full':full,
               'ir':ir,
