@@ -221,8 +221,8 @@ class tsl2561(object):
         if gain == '16x':
             gainScale = 1
             
-        fullScaled = full * intScale * gainScale
-        irScaled = ir * intScale * gainScale
+        fullScaled = round(full * intScale * gainScale)
+        irScaled = round(ir * intScale * gainScale)
         
         return fullScaled,irScaled
     def luxCalculation(self,full,ir,gain,integrationTime):
@@ -323,7 +323,7 @@ if __name__ == "__main__":
     
     # Use the recommended methods
     fullScaled,irScaled = tsl.getScaledLuminosity()
-    lux = tsl.getLux
+    lux = tsl.getLux()
     print("\nSCALED READINGS: Full={}, IR={}".format(fullScaled,irScaled))
     print("LUX = {}".format(lux))
         
