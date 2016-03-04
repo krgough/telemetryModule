@@ -33,28 +33,39 @@ def postResults(results):
     #    sql.insertNewEntry(sqlCreds, table, r)
     pw.insertRows(pw.db_Hotwater, pw.temperature, results)
     return
-def main():
+def readSensor(sensor):
     """ Read the sensors and then post results to SQL server
     
     """    
-    # Create a sensor object
-    tsl = TSL5661.tsl2561()
-    
     # Get the readings
-    lux, fullScaled, irScaled = tsl.lux(full, ir, tsl.gain, tsl.integrationTime)
+    lux, fullScaled, irScaled = sensor.getLux()
     ts = time.strftime("%Y-%m-%d %H:%M:%S")    
     results=({'location':location,
-              'full':full,
-              'ir':ir,
+              'full':fullScaled,
+              'ir':irScaled,
               'lux':lux,
-              'gain':tsl.gain,
-              'integrationTime':tsl.integrationTime,
+              'gain':sensor.gain,
+              'integrationTime':sensor.integrationTime,
               'timestamp':ts})
     
     print(results)
     
     # Post to the AWS SQL server
     postResults(results)
-
+    return results
+    
+def main():
+    sensor = TSL5661.tsl2561(integration='13ms')
+    readContinuous=True
+    if readContinuous==True:
+        while True:
+            results=readSensor(sensor)
+            print(results)
+            time.sleep(0.1)
+    
+    results = readSensor(sensor)
+    print(results)       
+    postResults(results)
+            
 if __name__ == "__main__":
     main()
