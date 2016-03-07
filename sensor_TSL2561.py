@@ -71,9 +71,6 @@ LUX_B3 = 0.0153
 LUX_A4 = 0.00146
 LUX_B4 = 0.00112
 
-#TODO: Change inttime and gain to use dict
-#TODO: Put lookup in setters to check for valid values
-
 class tsl2561(object):
     def __init__(self,
                  busAddress = BUS_ADDRESS,
@@ -164,7 +161,7 @@ class tsl2561(object):
         
         # Wait for integration to complete
         if self._integrationTime=='13ms':
-            time.sleep(0.050)
+            time.sleep(0.020)
         elif self._integrationTime=='101ms':
             time.sleep(0.150)
         elif self._integrationTime=='402ms':

@@ -16,8 +16,8 @@ import threadedSerial as AT
 import readLightLevels as rll
 
 MAX_LEVEL = 255 #
-BULB_ADDRESS = ''
-BULB_EP = ''
+BULB_ADDRESS = 'CF70'
+BULB_EP = '01'
 
 def buildLevelValues(percentageStepSize,maxLevel):
     """ Returns a list of hex values
@@ -27,7 +27,7 @@ def buildLevelValues(percentageStepSize,maxLevel):
         l = l+percentageStepSize
         level = int(l/100 * 255)
         levelHex = "{:0x}".format(level)
-        print(l,level,levelHex)
+        #print(l,level,levelHex)
         myList.append(levelHex)
     
     return myList
@@ -48,7 +48,7 @@ def main():
         setLevel(BULB_ADDRESS,BULB_EP, level, duration)
         
         # Now read the levels for 1 min
-        rll.main(rll.params)
+        rll.main(rll.params,level)
         
     return
     

@@ -21,8 +21,8 @@ TAG = 'myMeasurement'
 
 params = {'integrationTime':'402ms',
           'integrationGain':'16x',
-          'duration':0,     # Duration to run the script for in seconds. Default=0 i.e. one run only.
-          'period':0.1}     # Frequency of readings in seconds
+          'duration':60,     # Duration to run the script for in seconds. Default=0 i.e. one run only.
+          'period':0}        # Frequency of readings in seconds
 
 TIME_FORMAT = "%Y-%m-%d %H:%M:%S.%f"
 
@@ -91,13 +91,16 @@ def readSensor(sensor):
 def main(params):
     
     sensor = TSL5661.tsl2561(integration='13ms')
-    
     startTime=time.time()
-    while time.time() <= startTime + params['duration']:
+    while True:
         results=readSensor(sensor)
         print(results)
-        time.sleep(params['period'])      
-            
+        time.sleep(params['period'])
+        if time.time() > startTime + params['duration']:
+            break
+
+    return
+    
 if __name__ == "__main__":
     
     params = getArgs(params)
