@@ -11,10 +11,10 @@ Default device address for adafruit board is 0x39
 import smbus
 import time
 
-package_reg = 0x11 # Package
-device_reg  = 0x12 #
-address = 0x39
-busAddress = 1 # Change to 0 for older RPi revision
+# PACKAGE_REG = 0x11 # Package register
+# DEVICE_REG  = 0x12 # Device register
+ADDRESS = 0x39     # I2C address
+BUS_ADDRESS = 1    # Change to 0 for older RPi revision
 
 # Register Addresses
 TSL2561_REG_CONTROL          = 0x00
@@ -76,13 +76,13 @@ LUX_B4 = 0.00112
 
 class tsl2561(object):
     def __init__(self,
-                 busAddress = busAddress,
-                 sensorAddress = address,
+                 busAddress = BUS_ADDRESS,
+                 sensorAddress = ADDRESS,
                  integration = '402ms',
                  gain = '16x'):
 
         self.bus = smbus.SMBus(busAddress)
-        self.sensorAddress = address
+        self.sensorAddress = ADDRESS
         self.sensorError = None
         
         # Check device is present by reading the ID register
@@ -125,14 +125,14 @@ class tsl2561(object):
 
     def getRegister(self,reg):
         val = self.bus.read_byte_data(
-            address,
+            ADDRESS,
             TSL2561_CMD_BIT | reg)
         return val
     def enable(self):
         """
         """
         self.bus.write_byte_data(
-            address,
+            ADDRESS,
             TSL2561_CMD_BIT | TSL2561_REG_CONTROL,
             TSL2561_CTRL_POWER_ON)
         return
@@ -140,7 +140,7 @@ class tsl2561(object):
         """
         """
         self.bus.write_byte_data(
-            address,
+            ADDRESS,
             TSL2561_CMD_BIT | TSL2561_REG_CONTROL,
             TSL2561_CTRL_POWER_OFF)
         return
