@@ -71,7 +71,7 @@ def getArgs(myParams):
             myParams['period']=float(arg)
     
     return myParams
-def readSensor(sensor):
+def readSensor(sensor,level):
     """ Read the sensor and return the measured values
     
     """    
