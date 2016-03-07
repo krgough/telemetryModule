@@ -84,16 +84,17 @@ def readSensor(sensor):
               'lux':lux,
               'gain':sensor.gain,
               'integrationTime':sensor.integrationTime,
-              'timestamp':ts})
+              'timestamp':ts,
+              'level':level})
     
     return results
     
-def main(params):
+def main(params,level):
     
     sensor = TSL5661.tsl2561(integration='13ms')
     startTime=time.time()
     while True:
-        results=readSensor(sensor)
+        results=readSensor(sensor,level)
         print(results)
         time.sleep(params['period'])
         if time.time() > startTime + params['duration']:
@@ -109,4 +110,5 @@ if __name__ == "__main__":
     print("DURATION        : {}".format(params['duration']))
     print("PERIOD          : {}".format(params['period']))
     
-    main(params)
+    level=None
+    main(params,level)
