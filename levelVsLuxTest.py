@@ -16,7 +16,7 @@ import threadedSerial as AT
 import readLightLevels as rll
 
 MAX_LEVEL = 255 #
-BULB_ADDRESS = 'CF70'
+BULB_ADDRESS = 'C7F0'
 BULB_EP = '01'
 
 def buildLevelValues(percentageStepSize,maxLevel):
