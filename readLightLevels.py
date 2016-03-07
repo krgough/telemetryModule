@@ -95,6 +95,13 @@ def main(params,level):
     startTime=time.time()
     while True:
         results=readSensor(sensor,level)
+        print("{},{},{},{},{},{},{}".format(results['timestamp'],
+                                      results['level'],
+                                      results['lux'],
+                                      results['gain'],
+                                      results['integrationTime'],
+                                      results['full'],
+                                      results['ir']))
         print(results)
         time.sleep(params['period'])
         if time.time() > startTime + params['duration']:
