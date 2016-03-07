@@ -19,17 +19,15 @@ MAX_LEVEL = 255 #
 BULB_ADDRESS = 'C7F0'
 BULB_EP = '01'
 
-def buildLevelValues(percentageStepSize,maxLevel):
+def buildLevelValues(startPercent,stopPercent,stepSize,maxLevel):
     """ Returns a list of hex values
     """
     myList = []
-    for l in range(0,100,percentageStepSize):
-        l = l+percentageStepSize
-        level = int(l/100 * 255)
+    for l in range(startPercent,stopPercent+stepSize,stepSize):
+        level = int(l/100 * maxLevel)
         levelHex = "{:0x}".format(level)
         #print(l,level,levelHex)
         myList.append(levelHex)
-    
     return myList
 def setLevel(bulbAddress,bulbEp,level,duration):
     """
@@ -41,7 +39,7 @@ def setLevel(bulbAddress,bulbEp,level,duration):
     return
 def main():
     AT.startSerialThreads(config.PORT, config.BAUD, printStatus=False)
-    levels = buildLevelValues(10, MAX_LEVEL)
+    levels = buildLevelValues(10,100,10,MAX_LEVEL)
 
     for level in levels:
         duration=0 # Bulb to switch levels as fast as possible
