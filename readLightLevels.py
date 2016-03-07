@@ -102,7 +102,7 @@ def main(params,level):
                                       results['integrationTime'],
                                       results['full'],
                                       results['ir']))
-        print(results)
+        #print(results)
         time.sleep(params['period'])
         if time.time() > startTime + params['duration']:
             break
