@@ -17,7 +17,7 @@ import time
 import getopt,sys
 import sensor_TSL2561 as TSL5661
 
-TAG = 'myMeasurement'
+TAG = 'myMeasurement' # Free text field for labelling measurements e.g. location of measuremnt or bulb level
 
 params = {'integrationTime':'402ms',
           'integrationGain':'16x',
@@ -71,37 +71,36 @@ def getArgs(myParams):
             myParams['period']=float(arg)
     
     return myParams
-def readSensor(sensor,level):
+def readSensor(sensor):
     """ Read the sensor and return the measured values
     
     """    
     # Get the readings
     lux, fullScaled, irScaled = sensor.getLux()
     ts = time.time()   
-    results=({'location':TAG,
+    results=({'tag':TAG,
               'full':fullScaled,
               'ir':irScaled,
               'lux':lux,
               'gain':sensor.gain,
               'integrationTime':sensor.integrationTime,
-              'timestamp':ts,
-              'level':level})
+              'timestamp':ts})
     
     return results
     
-def main(params,level):
+def main(params):
     
     sensor = TSL5661.tsl2561(integration='13ms')
     startTime=time.time()
     while True:
-        results=readSensor(sensor,level)
+        results=readSensor(sensor)
         print("{},{},{},{},{},{},{}".format(results['timestamp'],
-                                      results['level'],
-                                      results['lux'],
-                                      results['gain'],
-                                      results['integrationTime'],
-                                      results['full'],
-                                      results['ir']))
+                                            results['tag'],
+                                            results['lux'],
+                                            results['gain'],
+                                            results['integrationTime'],
+                                            results['full'],
+                                            results['ir']))
         #print(results)
         time.sleep(params['period'])
         if time.time() > startTime + params['duration']:
@@ -117,5 +116,4 @@ if __name__ == "__main__":
     print("DURATION        : {}".format(params['duration']))
     print("PERIOD          : {}".format(params['period']))
     
-    level=None
-    main(params,level)
+    main(params)

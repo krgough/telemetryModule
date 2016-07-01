@@ -45,8 +45,10 @@ def main():
         duration=0 # Bulb to switch levels as fast as possible
         setLevel(BULB_ADDRESS,BULB_EP, level, duration)
         
-        # Now read the levels for 1 min
-        rll.main(rll.params,level)
+        # Now read and print the levels for 1 min
+        percentage=int(level,16)
+        rll.TAG="0x{},{}%".format(level,percentage)
+        rll.main(rll.params)
         
     return
     
