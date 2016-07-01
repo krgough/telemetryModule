@@ -14,12 +14,12 @@ import readLightLevels as rll
 
 
 
-def setLevel(nodeId,epId,level,duration):
+def setLevel(nodeId,epId,level):
     """
     """
     level = "{:02x}".format(int(level/100*254))
     
-    respState, respCode, respValue=AT.moveToLevel(nodeId,epId,myLevel=level,myDuration=duration)
+    respState, respCode, respValue=AT.moveToLevel(nodeId,epId,myLevel=level)
     if not respState:
         print("ERROR: moveToLevel has failed. {}".format(respCode,respValue))
         exit()
@@ -27,12 +27,11 @@ def setLevel(nodeId,epId,level,duration):
 def main():
     AT.startSerialThreads(config.PORT,config.BAUD,printStatus=False,rxQ=True,listenerQ=False)
 
-    duration=0 # Bulb to switch levels as fast as possible
     nodeId=config.nodeList[0]['node']
     epId=config.nodeList[0]['ep1']
     
     level = 70 # Light level as percentage
-    setLevel(nodeId,epId,level,duration)
+    setLevel(nodeId,epId,level)
         
     # Now read and print the levels for 1 min
     rll.TAG="{}%".format(level)
