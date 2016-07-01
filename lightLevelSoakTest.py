@@ -14,12 +14,12 @@ import readLightLevels as rll
 
 
 
-def setLevel(bulbAddress,bulbEp,level,duration):
+def setLevel(nodeId,epId,level,duration):
     """
     """
     level = "{:02x}".format(int(level/100*254))
     
-    respState, respCode, respValue=AT.moveToLevel(bulbAddress, bulbEp, level, duration)
+    respState, respCode, respValue=AT.moveToLevel(nodeId,epId,myLevel=level,myDuration=duration)
     if not respState:
         print("ERROR: moveToLevel has failed. {}".format(respCode,respValue))
         exit()

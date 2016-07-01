@@ -19,7 +19,7 @@ def setLevel(nodeId,epId,level,duration):
     """
     """
     hexLevel = "{:02x}".format(int(level/100*254))
-    respState, respCode, respValue=AT.moveToLevel(nodeId,epId,hexLevel,duration)
+    respState, respCode, respValue=AT.moveToLevel(nodeId,epId,myLevel=hexLevel,myDuration=duration)
     if not respState:
         print("ERROR: moveToLevel has failed. {}".format(respCode,respValue))
         exit()
