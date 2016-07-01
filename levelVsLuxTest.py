@@ -25,7 +25,7 @@ def setLevel(nodeId,epId,level,duration):
         exit()
     return
 def main():
-    AT.startSerialThreads(config.PORT, config.BAUD, printStatus=False)
+    AT.startSerialThreads(config.PORT,config.BAUD,printStatus=False,rxQ=True,listenerQ=False)
     startPercent=10
     stopPercent=100
     stepSize=10

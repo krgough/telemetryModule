@@ -25,7 +25,7 @@ def setLevel(nodeId,epId,level,duration):
         exit()
     return
 def main():
-    AT.startSerialThreads(config.PORT, config.BAUD, printStatus=False)
+    AT.startSerialThreads(config.PORT,config.BAUD,printStatus=False,rxQ=True,listenerQ=False)
 
     duration=0 # Bulb to switch levels as fast as possible
     nodeId=config.nodeList[0]['node']
