@@ -12,7 +12,7 @@ import loggingConfig as config
 import threadedSerial as AT
 import readLightLevels as rll
 
-LEVEL = 70 # Light level as percentage
+
 
 def setLevel(bulbAddress,bulbEp,level,duration):
     """
@@ -28,10 +28,14 @@ def main():
     AT.startSerialThreads(config.PORT, config.BAUD, printStatus=False)
 
     duration=0 # Bulb to switch levels as fast as possible
-    setLevel(config.nodeId,config.epId,LEVEL,duration)
+    nodeId=config.nodeList[0]['node']
+    epId=config.nodeList[0]['ep1']
+    
+    level = 70 # Light level as percentage
+    setLevel(nodeId,epId,level,duration)
         
     # Now read and print the levels for 1 min
-    rll.TAG="{}%".format(LEVEL)
+    rll.TAG="{}%".format(level)
     rll.params['duration'] = 60*60*2  # 2 hours
     rll.params['period'] = 1          # 1 second
     rll.main(rll.params)

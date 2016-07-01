@@ -19,7 +19,9 @@ def setLevel(bulbAddress,bulbEp,level,duration):
     """
     """
     hexLevel = "{:02x}".format(int(level/100*254))
-    respState, respCode, respValue=AT.moveToLevel(bulbAddress, bulbEp, hexLevel, duration)
+    nodeId=config.nodeList[0]['node']
+    epId=config.nodeList[0]['ep1']
+    respState, respCode, respValue=AT.moveToLevel(nodeId,epId,hexLevel,duration)
     if not respState:
         print("ERROR: moveToLevel has failed. {}".format(respCode,respValue))
         exit()
