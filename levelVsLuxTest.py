@@ -15,12 +15,10 @@ import loggingConfig as config
 import threadedSerial as AT
 import readLightLevels as rll
 
-def setLevel(bulbAddress,bulbEp,level,duration):
+def setLevel(nodeId,epId,level,duration):
     """
     """
     hexLevel = "{:02x}".format(int(level/100*254))
-    nodeId=config.nodeList[0]['node']
-    epId=config.nodeList[0]['ep1']
     respState, respCode, respValue=AT.moveToLevel(nodeId,epId,hexLevel,duration)
     if not respState:
         print("ERROR: moveToLevel has failed. {}".format(respCode,respValue))
@@ -31,10 +29,12 @@ def main():
     startPercent=10
     stopPercent=100
     stepSize=10
-
+    nodeId=config.nodeList[0]['node']
+    epId=config.nodeList[0]['ep1']
+    
     for level in range(startPercent,stopPercent+stepSize,stepSize):
         duration=0 # Bulb to switch levels as fast as possible
-        setLevel(config.nodeId,config.epId, level, duration)
+        setLevel(nodeId,epId, level, duration)
         
         # Now read and print the levels for 1 min
         rll.TAG="{}%".format(level)
