@@ -34,6 +34,7 @@ def main():
     nodeId=config.nodeList[0]['node']
     epId=config.nodeList[0]['ep1']
     
+    print("Setting bulb to 100% initially...")
     level = 100 # Light level as percentage
     setLevel(nodeId,epId,level)
     time.sleep(5)
@@ -45,6 +46,7 @@ def main():
         """ Soak at 70% for 30mins """
 
         # Set level
+        print("Setting bulb to 70%...")
         setLevel(nodeId,epId,70)
         time.sleep(5)
         
@@ -59,12 +61,14 @@ def main():
         timeout = time.time() + 30*60
         while time.time()<timeout:
             lux, _, _ = sensor.getLux()
+            print('DEBUG: {}'.format(lux))
             if lux<minLux: minLux=lux 
             if lux>maxLux: maxLux=lux 
             newDelta = maxLux-minLux
             if newDelta!=delta:
+                delta=newDelta
                 ts=datetime.datetime.now().strftime(TIME_FORMAT)
-                print("{}, Delta={}".format(ts,delta))
+                print("{}, Delta={}, Max={}, Min={}".format(ts,delta,maxLux,minLux))
         
         # Change to 100% for 10mins
         setLevel(nodeId,epId,level)
