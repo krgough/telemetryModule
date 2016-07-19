@@ -90,7 +90,7 @@ def readSensor(sensor):
     
 def main(params):
     
-    sensor = TSL5661.tsl2561(integration='13ms')
+    sensor = TSL5661.tsl2561(gain=params['integrationGain'],integration=params['interationTime'])
     startTime=time.time()
     while True:
         results=readSensor(sensor)

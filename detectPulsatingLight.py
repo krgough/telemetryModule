@@ -1,16 +1,18 @@
 '''
-Created on 1 Jul 2016
+Created on 19 Jul 2016
 
 @author: keith
 
-Measure the LUX output for a given illumination levels.
-Soak for some extended period
-Results printed to console so redirect to file is advisable
+Test to try and recreate pulsating LED bulb
+
+Soak at 70% for 30mins and then switch to off or 100% for some time.
+Repeat while measuring max min levels
 
 '''
 import loggingConfig as config
 import threadedSerial as AT
 import readLightLevels as rll
+import sensor_TSL2561 as TSL5661
 
 def setLevel(nodeId,epId,level):
     """
@@ -31,11 +33,10 @@ def main():
     level = 70 # Light level as percentage
     setLevel(nodeId,epId,level)
         
-    # Now read and print the levels for 1 min
-    rll.TAG="{}%".format(level)
-    rll.params['duration'] = 60*60*2  # 2 hours
-    rll.params['period'] = 1          # 1 second
-    rll.main(rll.params)
+    sensor = TSL5661.tsl2561(gain='16x',integration='402ms')    
+    lux, fullScaled, irScaled = sensor.getLux()
+        
+    print(lux,fullScaled,irScaled)
     
     return
     
