@@ -61,7 +61,7 @@ def main():
             lux, _, _ = sensor.getLux()
             if lux<minLux: minLux=lux 
             if lux>maxLux: maxLux=lux 
-            newDelta = max-min
+            newDelta = maxLux-minLux
             if newDelta!=delta:
                 ts=datetime.datetime.now().strftime(TIME_FORMAT)
                 print("{}, Delta={}".format(ts,delta))
