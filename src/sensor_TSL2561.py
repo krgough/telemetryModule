@@ -8,7 +8,7 @@ TSL2561 Light Sensor - Read the TSL2561 lux sensor
 Default device address for adafruit board is 0x39
 
 '''
-import smbus
+import smbus  # @UnresolvedImport
 import time
 
 # PACKAGE_REG = 0x11 # Package register
@@ -251,7 +251,7 @@ class tsl2561(object):
         
         # Calculate lux
         if ratio<= 0.5:
-            lux = (LUX_A1*fullScaled)-(LUX_A1*fullScaled*ratio**1.4)
+            lux = (LUX_A1*fullScaled)-(LUX_B1*fullScaled*(ratio**1.4))
         elif ratio<=0.61:
             lux = (LUX_A2*fullScaled)-(LUX_B2*irScaled)
         elif ratio<=0.8:

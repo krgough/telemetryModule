@@ -33,7 +33,7 @@ Temperature register in 0x05
     negative reading.
 
 '''
-import smbus
+import smbus  # @UnresolvedImport
 import time
 
 t_reg = 0x05
