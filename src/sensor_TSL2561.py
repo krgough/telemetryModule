@@ -276,13 +276,15 @@ class tsl2561(object):
         
         fullScaled,irScaled = self.scaleRawReadings(full,ir,self.gain,self.integrationTime)
         return fullScaled,irScaled
-    def getLux(self,autoGain=True):
+    def getLux(self,autoGain=True,gain='1x',intTime='402ms'):
         """ Get lux value
         
         """
         if autoGain:
             full,ir = self.getRawLuminosityAutoGain()
         else:
+            self.gain=gain
+            self.integrationTime=intTime
             full,ir = self.getRawLuminosity()
         
         lux, fullScaled, irScaled = self.luxCalculation(full,ir,self.gain,self.integrationTime)
