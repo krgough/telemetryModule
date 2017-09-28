@@ -1,4 +1,5 @@
+src/apiConfig.py
 .DS_Store
-__pycache__/
 .project
 .pydevproject
+src/__pycache__/

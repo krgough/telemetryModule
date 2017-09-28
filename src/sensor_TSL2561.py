@@ -6,6 +6,11 @@ Created on 11 Jan 2016
 TSL2561 Light Sensor - Read the TSL2561 lux sensor
 
 Default device address for adafruit board is 0x39
+GND
+3v
+SDA
+SCL
+
 
 '''
 import smbus  # @UnresolvedImport
@@ -105,7 +110,7 @@ class tsl2561(object):
     def gain(self,gainValue):
         # Check we are trying to set a valid value
         if not gainValue in list(TSL2561_GAIN_VALS.keys()):
-            print("ERROR: Invalide gain value. {} is not in {}".format(gainValue,list(TSL2561_GAIN_VALS.keys())))
+            print("ERROR: Invalid gain value. {} is not in {}".format(gainValue,list(TSL2561_GAIN_VALS.keys())))
             return
         # If ok the set the value
         self._gain=gainValue
@@ -297,29 +302,29 @@ if __name__ == "__main__":
     full,ir = tsl.getRawLuminosity()
     lux, fullScaled, irScaled = tsl.luxCalculation(full,ir,tsl.gain,tsl.integrationTime)
     print("\nGain=16x. Full 402ms Integration time (max resolution)")
-    print("RAW READINGS:    Full={}, IR={}".format(full,ir))
-    print("SCALED READINGS: Full={}, IR={}".format(fullScaled,irScaled))
+    print("RAW READINGS:    Full={:10}, IR={}".format(full,ir))
+    print("SCALED READINGS: Full={:10}, IR={}".format(fullScaled,irScaled))
     print("LUX = {}".format(lux))
     
     tsl.gain = '1x'
     full,ir = tsl.getRawLuminosity()
     lux, fullScaled, irScaled = tsl.luxCalculation(full,ir,tsl.gain,tsl.integrationTime)    
     print("\nGain=1x.  Full 402ms Integration Time (max resolution)")
-    print("RAW READINGS:    Full={}, IR={}.".format(full,ir))
-    print("SCALED READINGS: Full={}, IR={}".format(fullScaled,irScaled))
+    print("RAW READINGS:    Full={:10}, IR={}".format(full,ir))
+    print("SCALED READINGS: Full={:10}, IR={}".format(fullScaled,irScaled))
     print("LUX = {}".format(lux))
     
     # Now use auto gain
     full,ir = tsl.getRawLuminosityAutoGain()
     lux, fullScaled, irScaled = tsl.luxCalculation(full,ir,tsl.gain,tsl.integrationTime)      
     print("\nAGC {} Gain selected.  402ms Integration Time (max resolution)".format(tsl.gain))
-    print("RAW READINGS:    Full={}, IR={}.".format(full,ir))
-    print("SCALED READINGS: Full={}, IR={}".format(fullScaled,irScaled))
+    print("RAW READINGS:    Full={:10}, IR={}".format(full,ir))
+    print("SCALED READINGS: Full={:10}, IR={}".format(fullScaled,irScaled))
     print("LUX = {}".format(lux))
     
     # Use the recommended methods
     lux, fullScaled, irScaled = tsl.getLux()
-    print("\nSCALED READINGS: Full={}, IR={}".format(fullScaled,irScaled))
+    print("\nSCALED READINGS: Full={:10}, IR={}".format(fullScaled,irScaled))
     print("LUX = {}".format(lux))
         
     print('\nAll Done')
