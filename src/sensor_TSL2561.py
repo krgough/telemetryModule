@@ -11,9 +11,16 @@ GND
 SDA
 SCL
 
+Requirements:
+
+https://pypi.python.org/pypi/smbus2
+sudo raspi-config << Use menus to enable I2C
+pip install smbus2  
+
+i2cdetect -y 1 << Checks for devices attached to I2C-1
 
 '''
-import smbus  # @UnresolvedImport
+import smbus2
 import time
 
 # PACKAGE_REG = 0x11 # Package register
@@ -83,7 +90,7 @@ class tsl2561(object):
                  integration = '402ms',
                  gain = '16x'):
 
-        self.bus = smbus.SMBus(busAddress)
+        self.bus = smbus2.SMBus(busAddress)
         self.sensorAddress = ADDRESS
         self.sensorError = None
         

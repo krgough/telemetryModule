@@ -33,13 +33,13 @@ Temperature register in 0x05
     negative reading.
 
 '''
-import smbus  # @UnresolvedImport
+import smbus2  # @UnresolvedImport
 import time
 
 t_reg = 0x05
 address = 0x18
 busAddress = 1 # Change to 0 for older RPi revision
-bus = smbus.SMBus(busAddress)
+bus = smbus2.SMBus(busAddress)
 
 def getTemperature():
     """
@@ -65,8 +65,7 @@ def getTempetature_old():
     temp /=  16.0
 
     # If temp is negative then convert from 2s complement
-    if (t & 0x1000):
-        temp -= 256
+    if (t & 0x1000): temp -= 256
 
     return temp
 

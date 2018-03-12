@@ -3,7 +3,6 @@ Created on 31 Dec 2015
 
 @author: keith
 '''
-import time
 
 time_13ms  = 0x00
 time_101ms = 0x01

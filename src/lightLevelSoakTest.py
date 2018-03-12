@@ -8,9 +8,70 @@ Soak for some extended period
 Results printed to console so redirect to file is advisable
 
 '''
-import loggingConfig as config
 import threadedSerial as AT
 import readLightLevels as rll
+
+from os import path
+from getopt import getopt
+import sys,glob
+
+""" Command line argument methods """
+def readArguments():
+    """ Read command line parameters 
+        Use them if provided.
+    """
+    helpString = "\nUSAGE: {} [-fh] -n nodeId -p port -b baud\n\n".format(path.basename(sys.argv[0])) +\
+                 "Use these command line options to select the node, uart port and fast poll:\n\n" +\
+                 "-h             Print this help\n" +\
+                 "-n node        Node ID of target node\n" +\
+                 "-e endpoint    Endpoint of the target node\n" +\
+                 "-p port        /dev/portId\n" +\
+                 "-b baud        usually 115200\n"
+
+    myNodeId = None
+    myEp = None
+    myPort = None
+    myBaud = None
+
+    opts = getopt(sys.argv[1:], "hn:e:p:b:")[0]
+    
+    for opt, arg in opts:
+        #print(opt, arg)
+        if opt == '-h':
+            print(helpString)
+            exit()
+        if opt == '-n':
+            myNodeId = arg.upper()
+        if opt == '-e':
+            myEp = arg
+        if opt == '-p':
+            myPort = arg
+        if opt == '-b':
+            myBaud = arg
+
+    
+    if not myNodeId:
+        print("Node ID was not specified")
+        print(helpString)
+        exit()
+        
+    if not myEp:
+        print("EP ID was not specified")
+        print(helpString)
+        exit()
+        
+    if not myPort:
+        print("UART port was not specified.  Try one of these...")
+        print(glob.glob("/dev/tty.*"))
+        print(helpString)
+        exit()
+        
+    if not myBaud:
+        print("Baud rate not specified.  Typically we use 115200")
+        print(helpString)
+        exit()
+        
+    return myNodeId, myEp, myPort, myBaud
 
 def setLevel(nodeId,epId,level):
     """
@@ -23,13 +84,11 @@ def setLevel(nodeId,epId,level):
         exit()
     return
 def main():
-    AT.startSerialThreads(config.PORT,config.BAUD,printStatus=False,rxQ=True,listenerQ=False)
-
-    nodeId=config.nodeList[0]['node']
-    epId=config.nodeList[0]['ep1']
+    nodeId, ep, port, baud = readArguments()
+    AT.startSerialThreads(port,baud,printStatus=False,rxQ=True,listenerQ=False)
     
     level = 70 # Light level as percentage
-    setLevel(nodeId,epId,level)
+    setLevel(nodeId,ep,level)
         
     # Now read and print the levels for 1 min
     rll.TAG="{}%".format(level)
