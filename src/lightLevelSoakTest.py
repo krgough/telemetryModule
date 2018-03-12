@@ -20,8 +20,8 @@ def readArguments():
     """ Read command line parameters 
         Use them if provided.
     """
-    helpString = "\nUSAGE: {} [-fh] -n nodeId -p port -b baud\n\n".format(path.basename(sys.argv[0])) +\
-                 "Use these command line options to select the node, uart port and fast poll:\n\n" +\
+    helpString = "\nUSAGE: {} [-h] -n nodeId -e endpoint -p port -b baud\n\n".format(path.basename(sys.argv[0])) +\
+                 "Use these command line options to select the node, endpoint, uart port and baud\n\n" +\
                  "-h             Print this help\n" +\
                  "-n node        Node ID of target node\n" +\
                  "-e endpoint    Endpoint of the target node\n" +\
