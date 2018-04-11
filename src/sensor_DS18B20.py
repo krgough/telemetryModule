@@ -5,6 +5,8 @@ Created on 16 Jan 2016
 
 DS18B20 Temperature Sensor Library 
 
+One wire data bus sensor.  Multiple sensors on one GPIO.
+
 '''
 
 import os,sys,time

@@ -2,6 +2,9 @@
 Created on 13 Mar 2018
 
 @author: Keith.Gough
+
+TMP75B I2C Temperature Sensor 
+
 '''
 
 import smbus2

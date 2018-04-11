@@ -4,6 +4,7 @@ Created on 16 Jan 2016
 @author: keith
 
 MCP9808 temperature sensor library
+High accuracy I2C temperature sensor
 
 Default I2C address is 0x18
 Temperature register in 0x05

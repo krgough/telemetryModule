@@ -3,7 +3,7 @@ Created on 11 Jan 2016
 
 @author: keith
 
-TSL2561 Light Sensor - Read the TSL2561 lux sensor
+TSL2561 Light Sensor - I2C lux sensor
 
 Default device address for adafruit board is 0x39
 GND
