@@ -11,7 +11,7 @@ One wire data bus sensor.  Multiple sensors on one GPIO.
 
 import os,sys,time
 
-#import mySQL_Library as sql
+#import mySqlLibrary as sql
 
 nullTemperature = 999
 w1_devices = '/sys/bus/w1/devices'

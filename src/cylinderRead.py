@@ -28,7 +28,7 @@ Write values to sql_server on aws server
 
 '''
 import time
-#import mySQL_Library as sql
+#import mySqlLibrary as sql
 import sensor_DS18B20 as DS18B20
 import peeweeModule as pw
 
