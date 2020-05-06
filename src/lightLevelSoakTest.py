@@ -8,15 +8,15 @@ Soak for some extended period
 Results printed to console so redirect to file is advisable
 
 '''
-import threadedSerial as AT
-import readLightLevels as rll
+import threaded_serial as AT
+import read_light_levels as rll
 
 from os import path
 from getopt import getopt
 import sys,glob
 
 """ Command line argument methods """
-def readArguments():
+def get_args():
     """ Read command line parameters 
         Use them if provided.
     """
@@ -73,22 +73,22 @@ def readArguments():
         
     return myNodeId, myEp, myPort, myBaud
 
-def setLevel(nodeId,epId,level):
+def set_level(node_id,ep_id,level):
     """
     """
     level = "{:02x}".format(int(level/100*254))
     
-    respState, respCode, respValue=AT.moveToLevel(nodeId,epId,myLevel=level)
+    respState, respCode, respValue=AT.move_to_level(node_id,ep_id,level=level)
     if not respState:
-        print("ERROR: moveToLevel has failed. {}".format(respCode,respValue))
+        print("ERROR: move_to_level has failed. {}".format(respCode,respValue))
         exit()
     return
 def main():
-    nodeId, ep, port, baud = readArguments()
-    AT.startSerialThreads(port,baud,printStatus=False,rxQ=True,listenerQ=False)
+    nodeId, ep, port, baud = get_args()
+    AT.start_serial_threads(port,baud,print_status=False,rx_q=True,listener_q=False)
     
     level = 70 # Light level as percentage
-    setLevel(nodeId,ep,level)
+    set_level(nodeId,ep,level)
         
     # Now read and print the levels for 1 min
     rll.TAG="{}%".format(level)

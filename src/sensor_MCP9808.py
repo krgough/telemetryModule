@@ -6,7 +6,7 @@ Created on 16 Jan 2016
 MCP9808 temperature sensor library
 High accuracy I2C temperature sensor
 
-Default I2C address is 0x18
+Default I2C ADDRESS is 0x18
 Temperature register in 0x05
     2 Bytes
     Bit15, Bit14, Bit13, Bit12, Bit11, Bit10, Bit09, Bit08
@@ -34,44 +34,48 @@ Temperature register in 0x05
     negative reading.
 
 '''
-import smbus2  # @UnresolvedImport
+
 import time
+import smbus2  # @UnresolvedImport
 
-t_reg = 0x05
-address = 0x18
-busAddress = 1 # Change to 0 for older RPi revision
-bus = smbus2.SMBus(busAddress)
+T_REG = 0x05
+ADDRESS = 0x18
+BUS_ADDRESS = 1 # Change to 0 for older RPi revision
+BUS = smbus2.SMBus(BUS_ADDRESS)
 
-def getTemperature():
-    """
+def get_temperature():
+    """ Read the temperature
     """
     # Read 2 bytes and then swap the upper and lower bytes
-    t = bus.read_word_data(address,t_reg)
-    u = (t & 0x000F) << 8
-    l = (t & 0xFF00) >> 8
-    result = (u+l)/16
+    val = BUS.read_word_data(ADDRESS, T_REG)
+    upper = (val & 0x000F) << 8
+    lower = (val & 0xFF00) >> 8
+    result = (upper + lower) / 16
 
     # If temp is negative then convert from 2s complement
-    if t & 0x0010:
+    if val & 0x0010:
         result -= 256
 
     return result
 
-def getTempetature_old():
-    reading = bus.read_i2c_block_data(address, t_reg)
-    t = (reading[0] << 8) + reading[1]
+def get_tempetature_old():
+    """ Read the temperature
+    """
+    reading = BUS.read_i2c_block_data(ADDRESS, T_REG)
+    val = (reading[0] << 8) + reading[1]
 
     # calculate temperature (see 5.1.3.1 in datasheet)
-    temp = t & 0x0FFF
-    temp /=  16.0
+    temp = val & 0x0FFF
+    temp /= 16.0
 
     # If temp is negative then convert from 2s complement
-    if (t & 0x1000): temp -= 256
+    if val & 0x1000:
+        temp -= 256
 
     return temp
 
 if __name__ == "__main__":
     while True:
-        print(getTemperature())
+        print(get_temperature())
         time.sleep(1)
     print('All Done')

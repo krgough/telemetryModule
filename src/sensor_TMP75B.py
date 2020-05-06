@@ -1,18 +1,22 @@
+#!/usr/bin/env python3
+# pylint: disable=invalid-name
 '''
 Created on 13 Mar 2018
 
 @author: Keith.Gough
 
-TMP75B I2C Temperature Sensor 
+TMP75B I2C Temperature Sensor
 
 '''
-
-import smbus2
+import sys
 import time
+import smbus2  # @UnresolvedImport
+
+# pylint: disable=bad-whitespace
 
 # Address values
 BUS_ADDRESS = 0x01   # I2C 1 on rPi
-DEV_ADDRESS = 0x48   # Address for the tmp75b IC
+DEV_ADDRESS = 0x48   # Address for the TMP75B IC
 
 # Register Addresses
 TMP75B_REG_TEMP   = 0x00
@@ -41,181 +45,205 @@ TMP75B_CFG_FQ_06 = 0x1800
 
 TMP75B_RESET_CONFIG = 0x00FF
 
-debug = False
+# pylint: enable=bad-whitespace
 
-class tmp75b(object):
-    def __init__(self, busAddress, deviceAddress):
-        self.busAddress = busAddress
-        self.deviceAddress = deviceAddress
-        
-        self.bus = smbus2.SMBus(self.busAddress)
-        
+DEBUG = False
+
+class TMP75B:
+    """ Class for handling TMP75B device """
+    def __init__(self, bus_address=BUS_ADDRESS, device_address=DEV_ADDRESS):
+        self.bus_address = bus_address
+        self.device_address = device_address
+
+        self.bus = smbus2.SMBus(self.bus_address)
+
         # Check if device is present by reading the config reg
-        val = self.readWord(TMP75B_REG_CONF)
-        if (val & 0x00FF) != 0x00FF :
-            print("ERROR: Device not found at adddress {}".format(self.deviceAddress))
+        val = self.read_word(TMP75B_REG_CONF)
+        if (val & 0x00FF) != 0x00FF:
+            print("ERROR: Device not found at adddress {}".format(self.device_address))
             print("{:04x}".format(val))
-            exit()
-        
+            sys.exit(1)
+
         # Do a reset
-        self.resetConfig()
-    
-    def byteSwap(self,val):
-        lb = (0xff00 & val) >> 8
-        ub = (0x00ff & val) << 8
-        return lb | ub
-    def readByte(self,reg):
-        return self.bus.read_byte_data(self.deviceAddress,reg)
-    def readWord(self,reg):
-        return self.byteSwap(self.bus.read_word_data(self.deviceAddress,reg))
-    def writeWord(self,reg,value):
-        return self.bus.write_word_data(self.deviceAddress, reg, self.byteSwap(value))
-    def getTemperature(self):
-        """ self.bus.read_word_data(
+        self.reset_config()
+
+    def byte_swap(self, val):
+        # pylint: disable=no-self-use
+        """ Swap bytes in val """
+        low_b = (0xff00 & val) >> 8
+        hi_b = (0x00ff & val) << 8
+        return low_b | hi_b
+    def read_byte(self, reg):
+        """ Read a byte from the bus """
+        return self.bus.read_byte_data(self.device_address, reg)
+    def read_word(self, reg):
+        """ Read a word from the bus """
+        return self.byte_swap(self.bus.read_word_data(self.device_address, reg))
+    def write_word(self, reg, value):
+        """ Write a word to the bus """
+        return self.bus.write_word_data(self.device_address, reg, self.byte_swap(value))
+    def get_temperature(self):
+        """ Get the temperature
         """
-        val = self.readWord(TMP75B_REG_TEMP)
-        if debug: print("DEBUG: raw temperature = {:04x}".format(val))
-        
+        val = self.read_word(TMP75B_REG_TEMP)
+        if DEBUG:
+            print("DEBUG: raw temperature = {:04x}".format(val))
+
         # Mask off the integer part of the temperature
-        intPart = (val & 0x7F00) >> 8
-        
+        int_part = (val & 0x7F00) >> 8
+
         # Mask of the fractional part and convert to decimal
-        decPart = ((val & 0x00F0) >> 4) / 16
-        
+        dec_part = ((val & 0x00F0) >> 4) / 16
+
         # Add to get final temperature and calcualte the sign
-        temp = intPart + decPart
-        if val & 0x8000: temp*=-1
+        temp = int_part + dec_part
+        if val & 0x8000:
+            temp *= -1
         return temp
-    def printConfig(self):
-        val = self.readWord(TMP75B_REG_CONF)
+    def print_config(self):
+        # pylint: disable=too-many-branches
+        """ Print out the configuration """
+        val = self.read_word(TMP75B_REG_CONF)
 
         print("\nTMP75B CONFIGURATION:")
 
         print("    Config value = {:04x}".format(val))
-        
-        crMode = val & TMP75B_CFG_CR
-        fqMode = val & TMP75B_CFG_FQ
-        polMode = val & TMP75B_CFG_POL
-        tmMode = val & TMP75B_CFG_TM
-        sdMode = val & TMP75B_CFG_SD
-        
-        if crMode==TMP75B_CFG_CR_37:
-            myString="37Hz (default)"
-        elif crMode==TMP75B_CFG_CR_18:
-            myString='18Hz'
-        elif crMode==TMP75B_CFG_CR_09:
-            myString='9Hz'
-        elif crMode==TMP75B_CFG_CR_04:
-            myString='4Hz'
+
+        cr_mode = val & TMP75B_CFG_CR
+        fq_mode = val & TMP75B_CFG_FQ
+        pol_mode = val & TMP75B_CFG_POL
+        tm_mode = val & TMP75B_CFG_TM
+        sd_mode = val & TMP75B_CFG_SD
+
+        if cr_mode == TMP75B_CFG_CR_37:
+            my_string = "37Hz (default)"
+        elif cr_mode == TMP75B_CFG_CR_18:
+            my_string = '18Hz'
+        elif cr_mode == TMP75B_CFG_CR_09:
+            my_string = '9Hz'
+        elif cr_mode == TMP75B_CFG_CR_04:
+            my_string = '4Hz'
         else:
-            myString='    ERROR: Rate not found'
-            exit()
-        print("    Conversion Rate = {}".format(myString))
-        
-        if fqMode==TMP75B_CFG_FQ_01:
-            myString = "1 fault (default)"
-        elif fqMode==TMP75B_CFG_FQ_02:
-            myString = "2 faults"
-        elif fqMode==TMP75B_CFG_FQ_04:
-            myString = "4 faults"
-        elif fqMode==TMP75B_CFG_FQ_06:
-            myString = "6 faults"
-        print("    Fault Queue to trigger the ALERT pin = {}".format(myString))
-        
-        if polMode:
+            my_string = '    ERROR: Rate not found'
+            sys.exit()
+        print("    Conversion Rate = {}".format(my_string))
+
+        if fq_mode == TMP75B_CFG_FQ_01:
+            my_string = "1 fault (default)"
+        elif fq_mode == TMP75B_CFG_FQ_02:
+            my_string = "2 faults"
+        elif fq_mode == TMP75B_CFG_FQ_04:
+            my_string = "4 faults"
+        elif fq_mode == TMP75B_CFG_FQ_06:
+            my_string = "6 faults"
+        print("    Fault Queue to trigger the ALERT pin = {}".format(my_string))
+
+        if pol_mode:
             print("    ALERT is active high")
         else:
             print("    ALERT is active low (default)")
-        
-        if tmMode:
+
+        if tm_mode:
             print("    ALERT is in interrupt mode")
         else:
             print("    ALERT is in comparator mode (default)")
-        
-        if sdMode:
+
+        if sd_mode:
             print("    Device is in shutdown mode")
         else:
             print("    Device is in continuous conversion mode (default)")
-        
-        print()
-        return
 
-    def resetConfig(self):
-        return self.writeWord(TMP75B_REG_CONF, TMP75B_RESET_CONFIG)
-    def setConversionRate(self,conversionRate):
-        if not conversionRate in [TMP75B_CFG_CR_04,TMP75B_CFG_CR_09,TMP75B_CFG_CR_18,TMP75B_CFG_CR_37]:
+        print()
+
+    def reset_config(self):
+        """ Reset the configuration """
+        return self.write_word(TMP75B_REG_CONF, TMP75B_RESET_CONFIG)
+    def set_conversion_rate(self, conversion_rate):
+        """ Set the conversion rate """
+        if not conversion_rate in [TMP75B_CFG_CR_04,
+                                   TMP75B_CFG_CR_09,
+                                   TMP75B_CFG_CR_18,
+                                   TMP75B_CFG_CR_37]:
             print("ERROR: Invalid Value. Conversion rate not changed.")
             return False
 
-        config = self.readWord(TMP75B_REG_CONF)
-        maskedConfig = config & ~TMP75B_CFG_CR
-        newConfig = (maskedConfig | conversionRate)
-        self.writeWord(TMP75B_REG_CONF, newConfig)
-        return True        
-    def setFaultQueueTrigger(self,faultQueueTrigger):
-        if not faultQueueTrigger in [TMP75B_CFG_FQ_01,TMP75B_CFG_FQ_02,TMP75B_CFG_FQ_04,TMP75B_CFG_FQ_06]:
+        config = self.read_word(TMP75B_REG_CONF)
+        masked_config = config & ~TMP75B_CFG_CR
+        new_config = (masked_config | conversion_rate)
+        self.write_word(TMP75B_REG_CONF, new_config)
+        return True
+    def set_fault_queue_trigger(self, fault_queue_trigger):
+        """ Set the fault queue trigger """
+        if not fault_queue_trigger in [TMP75B_CFG_FQ_01,
+                                       TMP75B_CFG_FQ_02,
+                                       TMP75B_CFG_FQ_04,
+                                       TMP75B_CFG_FQ_06]:
             print("ERROR: Invalid Value. Fault queue trigger not changed.")
             return False
-        config = self.readWord(TMP75B_REG_CONF)
+        config = self.read_word(TMP75B_REG_CONF)
         print("{:04x}".format(config))
-        maskedConfig = config & ~TMP75B_CFG_FQ
-        print("{:04x}".format(maskedConfig))
-        newConfig = (maskedConfig | faultQueueTrigger)
-        print("{:04x}".format(newConfig))
-        self.writeWord(TMP75B_REG_CONF, newConfig)
+        masked_config = config & ~TMP75B_CFG_FQ
+        print("{:04x}".format(masked_config))
+        new_config = (masked_config | fault_queue_trigger)
+        print("{:04x}".format(new_config))
+        self.write_word(TMP75B_REG_CONF, new_config)
         return True
-    def setAlertPolarity(self,alertPolarity):
-        if not alertPolarity in [True,False]:
+    def set_alert_polarity(self, alert_polarity):
+        """ Set the alert polarity """
+        if not alert_polarity in [True, False]:
             print("ERROR: Invalid Value.  Alert polarity not changed.")
             return False
-        if alertPolarity:
-            newConfig = self.readWord(TMP75B_REG_CONF) | TMP75B_CFG_POL
+        if alert_polarity:
+            new_config = self.read_word(TMP75B_REG_CONF) | TMP75B_CFG_POL
         else:
-            newConfig = self.readWord(TMP75B_REG_CONF) & ~TMP75B_CFG_POL
-        self.writeWord(TMP75B_REG_CONF, newConfig)
+            new_config = self.read_word(TMP75B_REG_CONF) & ~TMP75B_CFG_POL
+        self.write_word(TMP75B_REG_CONF, new_config)
         return True
-    def setAlertMode(self,alertMode):
-        if not alertMode in [True,False]:
+    def set_alert_mode(self, alert_mode):
+        """ Set alert mode """
+        if not alert_mode in [True, False]:
             print("ERROR: Invalid Value.  Alert mode not changed.")
             return False
-        if alertMode:
-            newConfig = self.readWord(TMP75B_REG_CONF) | TMP75B_CFG_TM
+        if alert_mode:
+            new_config = self.read_word(TMP75B_REG_CONF) | TMP75B_CFG_TM
         else:
-            newConfig = self.readWord(TMP75B_REG_CONF) & ~TMP75B_CFG_TM
-        self.writeWord(TMP75B_REG_CONF, newConfig)
+            new_config = self.read_word(TMP75B_REG_CONF) & ~TMP75B_CFG_TM
+        self.write_word(TMP75B_REG_CONF, new_config)
         return True
-    def setSdMode(self,mode):
-        if not mode in [True,False]:
+    def set_sd_mode(self, mode):
+        """ Set the shutdown mode """
+        if not mode in [True, False]:
             print("ERROR: Invalid Value.  Shutdown mode not changed.")
             return False
         if mode:
-            newConfig = self.readWord(TMP75B_REG_CONF) | TMP75B_CFG_SD
+            new_config = self.read_word(TMP75B_REG_CONF) | TMP75B_CFG_SD
         else:
-            newConfig = self.readWord(TMP75B_REG_CONF) & ~TMP75B_CFG_SD
-        self.writeWord(TMP75B_REG_CONF, newConfig)        
+            new_config = self.read_word(TMP75B_REG_CONF) & ~TMP75B_CFG_SD
+        self.write_word(TMP75B_REG_CONF, new_config)
         return True
-    def doOneShot(self):
-        newConfig = self.readWord(TMP75B_REG_CONF) | TMP75B_CFG_OS
-        self.writeWord(TMP75B_REG_CONF, newConfig)
+    def do_one_shot(self):
+        """ Setup oneshot """
+        new_config = self.read_word(TMP75B_REG_CONF) | TMP75B_CFG_OS
+        self.write_word(TMP75B_REG_CONF, new_config)
         time.sleep(0.5)
-        return
-    
-if __name__=="__main__":
-  
-    mySensor = tmp75b(BUS_ADDRESS,DEV_ADDRESS)
-    mySensor.printConfig()
-    
-    mySensor.setSdMode(True)
-    mySensor.printConfig()
-    
-    print(mySensor.getTemperature())
-    
-    for i in range(5):
+
+def main():
+    """ Main Program """
+    sensor = TMP75B(BUS_ADDRESS, DEV_ADDRESS)
+    sensor.print_config()
+
+    sensor.set_sd_mode(True)
+    sensor.print_config()
+
+    print(sensor.get_temperature())
+
+    for _ in range(5):
         time.sleep(5)
-        print(mySensor.getTemperature())
-        
-    mySensor.setSdMode(True)
-    mySensor.doOneShot()
-    print(mySensor.getTemperature())
-    
-    
+        print(sensor.get_temperature())
+
+    sensor.set_sd_mode(True)
+    sensor.do_one_shot()
+    print(sensor.get_temperature())
+
+if __name__ == "__main__":
+    main()
