@@ -5,7 +5,7 @@
 import sys
 import json
 import requests
-import api_config
+import config
 
 class SessionObject:
     """ Session object class
@@ -16,7 +16,7 @@ class SessionObject:
         self.api_url = url
 
         if username == '' or password == '' or url == '':
-            print("Username, password and api url must be defined in api_config.py")
+            print("Username, password and api url must be defined in config.py")
             sys.exit()
 
         self.headers = {'Accept':'application/vnd.alertme.zoo-6.3+json',
@@ -87,6 +87,6 @@ class SessionObject:
         return resp, success, payload
 
 if __name__ == "__main__":
-    SESSION = SessionObject(api_config.USERNAME, api_config.PASSWORD, api_config.URL)
+    SESSION = SessionObject(config.USERNAME, config.PASSWORD, config.URL)
     print(SESSION.set_state("Luca Plug", False))
     print(SESSION.set_brightness('Sitt Colour', 20))

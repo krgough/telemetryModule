@@ -16,7 +16,7 @@ import sys
 import time
 
 import api_methods as api
-import api_config
+import config
 
 import sensor_TSL2561 as TSL2561
 
@@ -25,7 +25,7 @@ NODE_NAME = 'Sitt Colour'
 def main():
     """ Main Program """
 
-    acct = api.SessionObject(api_config.USERNAME, api_config.PASSWORD, api_config.URL)
+    acct = api.SessionObject(config.USERNAME, config.PASSWORD, config.URL)
 
     start_percent = 1
     stop_percent = 100
