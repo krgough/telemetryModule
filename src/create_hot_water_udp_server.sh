@@ -2,7 +2,7 @@
 PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:
 
 startServer(){
-    cmd="/home/pi/repositories/telemetry/hot_water_udp_server.py &"
+    cmd="/home/pi/repositories/telemetryModule/src/hot_water_udp_server.py &"
     eval "$cmd"
 
     if [ $? == 0 ];then
