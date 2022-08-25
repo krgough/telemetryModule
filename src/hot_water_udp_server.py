@@ -159,7 +159,7 @@ def listen_for_cmd():
                 SOCK.sendto(message.encode(), address)
 
         # Check the uwl thread is alive and restart if not
-        if not uwl_thread.isAlive():
+        if not uwl_thread.is_alive():
             LOGGER.debug("uwl thread is not alive.  Exiting for a clean re-start...")
             sys.exit()
 
