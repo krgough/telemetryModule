@@ -36,7 +36,7 @@ import sys
 import logging.config
 
 import sensor_DS18B20 as DS18B20
-#import sqlite_kg_lib as sql
+# import sqlite_kg_lib as sql
 
 LOG_PATH = '/home/pi/repositories/telemetry/data_log.csv'
 LOG_MAX_SIZE = 3000000
@@ -58,15 +58,13 @@ COLS = "(timestamp, sensor1, sensor2, sensor3, sensor4, sensor5)"
 def get_args():
     """ Get command line arguments
     """
-
-    args = {'save': False,
-           }
+    args = {'save': False, }
 
     # Get command line options
 
     help_string = dedent("""
-        USAGE: {} [-hd]
-    
+        USAGE: {} [-hs]
+
         -s        Save results to log file (default is no save).
         -h        Show this help
 
@@ -76,7 +74,7 @@ def get_args():
     except getopt.GetoptError as err:
         print(err.msg)
         sys.exit(2)
-    for opt, arg in opts:
+    for opt, _ in opts:
         if opt == '-s':
             args['save'] = True
         if opt == '-h':
@@ -84,6 +82,8 @@ def get_args():
             sys.exit()
 
     return args
+
+
 def configure_logger(name, log_path=None, log_max_size=1024):
     """ Logger configuration function
         If logPath given then log to console and to the file
@@ -91,9 +91,12 @@ def configure_logger(name, log_path=None, log_max_size=1024):
     """
     version = 1
     disable_existing_loggers = False
-#     formatters = {'default': {'format': '%(asctime)s,%(levelname)s,%(name)s,%(message)s',
-#                               'datefmt': '%Y-%m-%d %H:%M:%S'}
-#                  }
+    # formatters = {
+    #     'default': {
+    #         'format': '%(asctime)s,%(levelname)s,%(name)s,%(message)s',
+    #         'datefmt': '%Y-%m-%d %H:%M:%S'
+    #     }
+    # }
     formatters = {'default': {'format': '%(message)s'}}
 
     console_handler = {'level': 'INFO',
@@ -114,7 +117,7 @@ def configure_logger(name, log_path=None, log_max_size=1024):
             'disable_existing_loggers': disable_existing_loggers,
             'formatters': formatters,
             'handlers': {'file': file_handler, 'console': console_handler},
-            'loggers': {'':{'level': 'INFO', 'handlers': ['file']}}
+            'loggers': {'': {'level': 'INFO', 'handlers': ['file']}}
         })
     else:
         logging.config.dictConfig({
@@ -126,6 +129,8 @@ def configure_logger(name, log_path=None, log_max_size=1024):
         })
 
     return logging.getLogger(name)
+
+
 # def post_results_to_sqlite(results):
 #     """ Insert the results into the mySQL DATABASE on the server
 #
@@ -141,36 +146,42 @@ def configure_logger(name, log_path=None, log_max_size=1024):
 #                                          )
 #
 #     dbase.insert_row(TABLE, COLS, vals)
+
+
 def post_results_to_log_file(results):
     """ Write results to a rotating log file
     """
     logger = configure_logger(__name__, LOG_PATH, LOG_MAX_SIZE)
-    data = '{},{},{},{},{},{},{}'.format(results['timestamp'],
-                                         results['sensor1'],
-                                         results['sensor2'],
-                                         results['sensor3'],
-                                         results['sensor4'],
-                                         results['sensor5'],
-                                         results['uwl'],
-                                        )
+    data = (
+        f"{results['timestamp']}," +
+        f"{results['sensor1']}," +
+        f"{results['sensor2']}," +
+        f"{results['sensor3']}," +
+        f"{results['sensor4']}," +
+        f"{results['sensor5']}," +
+        f"{results['uwl']}," +
+        f"{results['timestamp']}"
+    )
     logger.info(data)
+
 
 def calc_uwl(s1_val, s3_val, target_val=UWL_TARGET_TEMPERATURE):
     """ We assume that usable hot water is any water >40'C
 
         Hot water is at the top of the tank
 
-        S4 is on the same level as the top of the heating coils and over indicates
-        when the hot water is on.
+        S4 is on the same level as the top of the heating coils and over
+        indicates when the hot water is on.
 
         S5 is on the inlet pipe.
 
-        We note that the cyclinder Tstat is set at 55'C and that s3 indicates approx
-        40'C when the Tstat reaches the cutoff point, this is a 'full' tank.
+        We note that the cyclinder Tstat is set at 55'C and that s3 indicates
+        approx 40'C when the Tstat reaches the cutoff point, this is a 'full'
+        tank.
 
-        We want to know the 40'C point in the cylinder.  So we calculate the straight
-        line between s1 and s3 and then use that to calculate the 40'C position
-        relative to S0.
+        We want to know the 40'C point in the cylinder.  So we calculate the
+        straight line between s1 and s3 and then use that to calculate the
+        40'C position relative to S0.
 
         uwl is Usable Water Level (amount of 40'C in the tank)
 
@@ -204,27 +215,26 @@ def calc_uwl(s1_val, s3_val, target_val=UWL_TARGET_TEMPERATURE):
     """
     uwl = ((target_val - s1_val) / (s3_val - s1_val)) * 100
 
-    if uwl < 0:
-        uwl = 0
-    if uwl > 100:
-        uwl = 100
+    uwl = max(uwl, 0)
+    uwl = min(uwl, 100)
 
     return int(uwl)
+
+
 def read_sensors(save_results=False):
     """ Read the sensors and return the results
-
     """
     # Confirm what devices are attached
     dev_ids = DS18B20.get_device_ids()
 
     time_stamp = int(time.time())
     results = {'timestamp': time_stamp}
-    #time_stamp = time.strftime("%Y-%m-%d %H:%M:%S")
+    # time_stamp = time.strftime("%Y-%m-%d %H:%M:%S")
     for dev in dev_ids:
 
         # Lookup the sensor name using the id
         # If we don't find it then ignore it
-        if not dev in SENSOR_LOOKUP:
+        if dev not in SENSOR_LOOKUP:
             print('Sensor %s is not in the lookup TABLE', dev)
         else:
             temp, _ = DS18B20.get_temperature_reading(dev)
@@ -237,13 +247,14 @@ def read_sensors(save_results=False):
     if save_results:
         post_results_to_log_file(results)
     else:
-        # Print the results
-        for i in range(1,6):
-            sensor = "sensor{}".format(i)
-            print("{} = {}".format(sensor, results[sensor]))
-        print("uwl = {}%".format(results['uwl']))
+        # Print the results
+        for i in range(1, 6):
+            sensor = f"sensor{i}"
+            print(f"{sensor} = {results[sensor]}")
+        print(f"uwl = {results['uwl']}%")
 
     return results
+
 
 if __name__ == "__main__":
     SAVE_RESULTS = get_args()

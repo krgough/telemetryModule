@@ -11,42 +11,46 @@ Light Levels - Read light level sensor.
 -d duration. How long to run this script for in seconds.
 -p period. How often to take a reading in seconds.
            Default (if not specified) is to read as fast as possible.
-           Rate is limited by how fast we can read the I2C bus and the integration time.
+           Rate is limited by how fast we can read the I2C bus and the
+           integration time.
 
 '''
 import time
 import getopt
 import sys
-import os
 from textwrap import dedent
 
 import sensor_TSL2561 as TSL5661
 
-# Free text field for labelling measurements e.g. location of measuremnt or bulb level
+# Free text field for labelling measurements
+# e.g. location of measuremnt or bulb level
 TAG = 'myMeasurement'
 
-DEFAULT_PARAMS = {'integration_time':'402ms',
-                  'integrationGain':'16x',
-                  'duration':60,     # Duration to run the script for in seconds.
-                                     # Default=0 i.e. one run only.
-                  'period':0}        # Frequency of readings in seconds
+DEFAULT_PARAMS = {
+    'integration_time': '402ms',
+    'integrationGain': '16x',
+    'duration': 60,   # Duration to run the script for in seconds.
+                      # Default=0 i.e. one run only.
+    'period': 0       # Frequency of readings in seconds
+}
 
 TIME_FORMAT = "%Y-%m-%d %H:%M:%S.%f"
+
 
 def get_args(params):
     """ Get CLI arguments
     """
     help_string = dedent("""
-    
-    Usage: {} [-h]
+
+    Usage: {os.path.basename(__file__)} [-h]
     -h show help
     -i integration_time. 13ms,101ms or 402ms. Usage: -i 13
     -g integrationGain. 1x or 16x. Usage: -g 16
     -d duration. How long to run this script for in seconds
     -p period. How often to take a reading in seconds.
-               Default (if not specified) is to read as fast as possible.
-               Rate is limited by how fast we can read the I2C bus and the integration time.
-    """.format(os.path.basename(__file__)))
+        Default (if not specified) is to read as fast as possible.
+        Rate limited by how fast we can read the I2C bus and integration time.
+    """)
 
     # First arg is the pathname for the current file
     # Remaining args are those provided on the command line
@@ -81,50 +85,63 @@ def get_args(params):
             params['period'] = float(arg)
 
     return params
+
+
 def read_sensor(sensor):
     """ Read the sensor and return the measured values
 
     """
     # Get the readings
-    LUX, full_scaled, ir_scaled = sensor.get_lux()
+    lux, full_scaled, ir_scaled = sensor.get_lux()
     timestamp = time.time()
-    results = ({'tag':TAG,
-                'full':full_scaled,
-                'ir':ir_scaled,
-                'LUX':LUX,
-                'gain':sensor.gain,
-                'integration_time':sensor.integration_time,
-                'timestamp':timestamp})
+    results = (
+        {
+            'tag': TAG,
+            'full': full_scaled,
+            'ir': ir_scaled,
+            'LUX': lux,
+            'gain': sensor.gain,
+            'integration_time': sensor.integration_time,
+            'timestamp': timestamp
+        }
+    )
 
     return results
+
 
 def main():
     """ Main Program """
 
     params = get_args(DEFAULT_PARAMS)
-    print("INTEGRATION TIME: {}".format(params['integration_time']))
-    print("INTEGRATION GAIN: {}".format(params['integrationGain']))
-    print("DURATION        : {}".format(params['duration']))
-    print("PERIOD          : {}".format(params['period']))
+    print(f"INTEGRATION TIME: {params['integration_time']}")
+    print(f"INTEGRATION GAIN: {params['integrationGain']}")
+    print(f"DURATION        : {params['duration']}")
+    print(f"PERIOD          : {params['period']}")
 
-    sensor = TSL5661.TSLl2561(gain=params['integrationGain'],
-                             integration=params['interationTime'])
+    sensor = TSL5661.TSL2561(
+        gain=params['integrationGain'],
+        integration=params['interationTime']
+    )
 
     start_time = time.time()
 
     while True:
         results = read_sensor(sensor)
-        print("{},{},{},{},{},{},{}".format(results['timestamp'],
-                                            results['tag'],
-                                            results['LUX'],
-                                            results['gain'],
-                                            results['integration_time'],
-                                            results['full'],
-                                            results['ir']))
-        #print(results)
+
+        print(
+            f"{results['timestamp']}," +
+            f"{results['tag']}," +
+            f"{results['LUX']}," +
+            f"{results['gain']}," +
+            f"{results['integration_time']}," +
+            f"{results['full']}," +
+            f"{results['ir']}"
+        )
+        # print(results)
         time.sleep(params['period'])
         if time.time() > start_time + params['duration']:
             break
+
 
 if __name__ == "__main__":
     main()

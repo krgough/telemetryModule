@@ -22,21 +22,21 @@ from textwrap import dedent
 import threaded_serial as AT
 import read_light_levels as rll
 
-""" Command line argument methods """
+
 def get_args():
     """ Read command line parameters
         Use them if provided.
     """
-    help_string = dedent("""
-    
-    USAGE: {} [-h] -n nodeId -e endpoint -p port -b baud
+    help_string = dedent(f"""
+
+    USAGE: {os.path.basename(__file__)} [-h] -n nodeId -e endpoint -p port -b baud
     Use these command line options to select the node, endpoint, uart port and baud
-    
+
     -h             Print this help
     -n node        Node ID of target node
     -e endpoint    Endpoint of the target node
     -p port        /dev/portId
-    -b baud        usually 115200""".format(os.path.basename(__file__)))
+    -b baud        usually 115200""")
 
     node_id = None
     ep_id = None
@@ -46,7 +46,7 @@ def get_args():
     opts = getopt(sys.argv[1:], "hn:e:p:b:")[0]
 
     for opt, arg in opts:
-        #print(opt, arg)
+        # print(opt, arg)
         if opt == '-h':
             print(help_string)
             sys.exit()
@@ -82,6 +82,7 @@ def get_args():
 
     return node_id, ep_id, port, baud
 
+
 def set_level(node_id, ep_id, level):
     """ Set level
     """
@@ -90,6 +91,8 @@ def set_level(node_id, ep_id, level):
     if not resp_state:
         print("ERROR: move_to_level has failed. {}, {}".format(resp_code, resp_value))
         sys.exit(1)
+
+
 def main():
     """ Main Program """
     node_id, ep_id, port, baud = get_args()
@@ -108,8 +111,9 @@ def main():
         set_level(node_id, ep_id, level)
 
         # Now read and print the levels for 1 min
-        rll.TAG = "{}%".format(level)
+        rll.TAG = f"{level}%"
         rll.main(rll.params)
+
 
 if __name__ == "__main__":
     main()
