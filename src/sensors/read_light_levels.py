@@ -20,7 +20,7 @@ import getopt
 import sys
 from textwrap import dedent
 
-import sensor_TSL2561 as TSL5661
+import sensors.sensor_TSL2561 as TSL5661
 
 # Free text field for labelling measurements
 # e.g. location of measuremnt or bulb level

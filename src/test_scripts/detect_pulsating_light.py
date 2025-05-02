@@ -21,12 +21,12 @@ import sys
 import glob
 
 
-import threaded_serial as AT
-import sensor_TSL2561 as TSL5661
+# import threaded_serial as AT
+import sensors.sensor_TSL2561 as TSL5661
 
 TIME_FORMAT = "%Y-%m-%d %H:%M:%S.%f"
 
-""" Command line argument methods """
+
 def get_args():
     """ Read command line parameters
         Use them if provided.
@@ -49,7 +49,7 @@ def get_args():
     opts = getopt(sys.argv[1:], "hn:e:p:b:")[0]
 
     for opt, arg in opts:
-        #print(opt, arg)
+        # print(opt, arg)
         if opt == '-h':
             print(help_string)
             sys.exit(1)
@@ -85,6 +85,7 @@ def get_args():
 
     return node_id, ep_id, port, baud
 
+
 def set_level(node_id, ep_id, level):
     """ Set the level
     """
@@ -92,8 +93,9 @@ def set_level(node_id, ep_id, level):
 
     resp_state, resp_code, resp_value = AT.move_to_level(node_id, ep_id, level=level)
     if not resp_state:
-        print("ERROR: move_to_level has failed. {}, {}".format(resp_code, resp_value))
+        print(f"ERROR: move_to_level has failed. {resp_code}, {resp_value}")
         sys.exit(1)
+
 
 def soak_test(node_id, ep_id, level, soak_time):
     """ Sets the bulb to a given level for a given time and returns the max,min LUX levels
@@ -108,20 +110,19 @@ def soak_test(node_id, ep_id, level, soak_time):
     time.sleep(5)
 
     # Setup the sensor
-    sensor = TSL5661.TSLl2561()
-    LUX, _, _ = sensor.get_lux()
-    min_lux = LUX
-    max_lux = min_lux
+    sensor = TSL5661.TSL2561()
+    lux, _, _ = sensor.get_lux()
+    min_lux = max_lux = lux
 
     timeout = time.time() + soak_time
     while time.time() < timeout:
-        LUX, _, _ = sensor.get_lux()
-        if LUX < min_lux:
-            min_lux = LUX
-        if LUX > max_lux:
-            max_lux = LUX
+        lux, _, _ = sensor.get_lux()
+        min_lux = min(min_lux, lux)
+        max_lux = max(max_lux, lux)
 
     return min_lux, max_lux
+
+
 def main():
     """ Main Program """
     print("*** Pulsating lamp checkGainAndAgc")
@@ -132,36 +133,33 @@ def main():
 
     # Create a results file
     timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H:%M:%S")
-    result_file = '/home/pi/pulsatingBulbResult_{}'.format(timestamp)
+    result_file = f'/home/pi/pulsatingBulbResult_{timestamp}'.format(timestamp)
 
     # Setup the bulb
     node_id, ep_id, port, baud = get_args()
     AT.start_serial_threads(port, baud, print_status=False, rx_q=True, listener_q=False)
 
     print("\nSetting bulb to 100% initially...")
-    level = 100 # Light level as percentage
+    level = 100  # Light level as percentage
     set_level(node_id, ep_id, level)
     time.sleep(5)
     print("\nStarting iterations...")
 
     for i in range(1, 100):
-        # Soak at 70% for 30mins
+        # Soak at 70% for 30mins
         min_lux, max_lux = soak_test(node_id, ep_id, 70, 30 * 60)
         timestamp = datetime.datetime.now().strftime(TIME_FORMAT)
-        my_string = "Interation={},{},{},{},{}".format(i,
-                                                       timestamp,
-                                                       min_lux,
-                                                       max_lux,
-                                                       max_lux - min_lux)
+        my_string = f"Interation={i},{timestamp},{min_lux},{max_lux},{max_lux - min_lux}"
 
         print(my_string)
-        with open(result_file, 'a') as file:
+        with open(result_file, mode='a', encoding="utf-8") as file:
             print(my_string, file=file)
 
         # Set level to random value for 5mins
         level = random.randint(0, 100)
         set_level(node_id, ep_id, level)
         time.sleep(5 * 50)
+
 
 if __name__ == "__main__":
     main()

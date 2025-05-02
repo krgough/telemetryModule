@@ -31,7 +31,7 @@ import os
 import time
 import threading
 
-import cylinder_read as cyl
+import udp_telemetry.cylinder_read as cyl
 
 # Using the configure_logger procedure to setup the logging to a file
 # LOGGER = logging.getLogger(__name__)

@@ -3,3 +3,6 @@ src/apiConfig.py
 .project
 .pydevproject
 src/__pycache__/
+.vscode
+venv
+data_log.csv

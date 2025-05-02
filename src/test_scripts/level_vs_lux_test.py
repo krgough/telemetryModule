@@ -20,7 +20,7 @@ import glob
 from textwrap import dedent
 
 import threaded_serial as AT
-import read_light_levels as rll
+import sensors.read_light_levels as rll
 
 
 def get_args():

@@ -11,19 +11,22 @@ import matplotlib.pyplot as plt
 FILENAME = 'data_log.csv'
 NUMBER_OF_SENSORS = 5
 
+
 def convert_timestamps(timestamp_list):
     """ Convert the timestamp data to a list of datetime types
     """
     return [datetime.fromtimestamp(int(ts)) for ts in timestamp_list]
+
+
 def load_data_from_file(filename):
     """ Load data from csv file to a list of lists
         First row of list has headers
     """
-    with open(filename, mode='r') as file:
+    with open(filename, mode='r', encoding='utf-8') as file:
         data = file.readlines()
         data = [line.strip().split(',') for line in data]
 
-    # Unpack the list of lists
+    # Unpack the list of lists
     data = list(zip(*data))
 
     # Change types
@@ -38,6 +41,7 @@ def load_data_from_file(filename):
     x_vals = [datetime.fromtimestamp(val) for val in x_vals]
 
     return x_vals, y_vals
+
 
 def calc_uwl(s0_val, s2_val, target_val=40):
     """ We assume that usable hot water is any water >40'C
@@ -95,6 +99,7 @@ def calc_uwl(s0_val, s2_val, target_val=40):
 
     return uwl * 100
 
+
 def create_uwl_data(data):
     """
     """
@@ -108,6 +113,7 @@ def create_uwl_data(data):
         uwl_data.append(uwl_val)
 
     return uwl_data
+
 
 def main():
     """ Main Program """

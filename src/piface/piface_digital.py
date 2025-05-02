@@ -4,20 +4,21 @@ Created on 19 Nov 2016
 
 @author: keith
 '''
-import sys
+
 import time
 import pifacedigitalio  # @UnresolvedImport
 # http://www.piface.org.uk/products/piface_digital_2/
 
 NUMBER_OF_LEDS = 8
 
-# pylint: disable=bad-continuation
-PWM = {100:[1, 1, 1, 1, 0, 0, 0, 0],
-        75:[1, 1, 1, 0, 0, 0, 0, 0],
-        50:[1, 1, 0, 0, 0, 0, 0, 0],
-        25:[1, 0, 0, 0, 0, 0, 0, 0],
-         0:[0, 0, 0, 0, 0, 0, 0, 0]}
-# pylint: enable=bad-continuation
+PWM = {
+    100: [1, 1, 1, 1, 0, 0, 0, 0],
+    75: [1, 1, 1, 0, 0, 0, 0, 0],
+    50: [1, 1, 0, 0, 0, 0, 0, 0],
+    25: [1, 0, 0, 0, 0, 0, 0, 0],
+    0: [0, 0, 0, 0, 0, 0, 0, 0]
+}
+
 
 def led_knight_rider(pfd):
     # pylint: disable=too-many-nested-blocks
@@ -35,7 +36,7 @@ def led_knight_rider(pfd):
     main_loop = True
     while main_loop:
         for _ in range(max_frames):
-            # change the frame here
+            # change the frame here
             for pwm_tick in range(1, 101):
                 # Turn on the LEDs in the first PWM tick
                 if pwm_tick == 1:
@@ -57,16 +58,18 @@ def led_knight_rider(pfd):
 
         return
 
+
 def get_led_word(led_table, pwm_tick):
     """  LED table is a list of numbers (one for each led).  The numbers correspond to
          the number of pwmTicks that each led shall be on for.
-
     """
     led_word = 0xFF
     for led in range(0, 8):
         if pwm_tick > led_table[led]:
-            led_word = led_word & ~(1 << led) # Clear the given bit
+            led_word = led_word & ~(1 << led)  # Clear the given bit
     return led_word
+
+
 def test(pfd):
     """
         10 dimming levels is sufficient (cannot really discerne any other resolution)
@@ -96,9 +99,9 @@ def test(pfd):
     print()
     print(end_time - start_time)
 
+
 def single_led_test(pfd):
-    """ Single LED Test
-    """
+    """ Single LED Test """
     pfd.leds[7].turn_on()
 
     while True:
@@ -112,14 +115,14 @@ def single_led_test(pfd):
                 pfd.leds[0].turn_off()
                 time.sleep(off_time)
 
+
 def main():
-    """ Main Program
-    """
-    pfd = pifacedigitalio.PiFaceDigital() # creates a PiFace Digtal object
+    """ Main Program """
+    pfd = pifacedigitalio.PiFaceDigital()
     test(pfd)
-    sys.exit()
-    #single_led_test(pfd)
-    led_knight_rider(pfd)
+    # single_led_test(pfd)
+    # led_knight_rider(pfd)
+
 
 if __name__ == "__main__":
     main()
